@@ -16,7 +16,12 @@ for task in tasks:
             title=f"批准开发：{task}",
             body=f"由 Maneki-AI 招财猫情报局批准，自动创建任务。"
         )
+
+        # ✅ 调试输出：显示状态码和返回内容
+        st.write("GitHub 返回状态码:", status)
+        st.write("GitHub 返回内容:", result)
+
         if status == 201:
             st.success(f"Issue 已成功创建：{task}")
         else:
-            st.error(f"创建 Issue 失败：{result}")
+            st.error(f"创建 Issue 失败，请检查返回内容。")
