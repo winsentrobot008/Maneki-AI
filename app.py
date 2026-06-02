@@ -595,12 +595,34 @@ def page_report_viewer():
                f"报告路径: `logs/task_{selected}_report.json`")
 
 
+# ── Version Constants ──────────────────────────────────────────────────────
+# Bump this on every deployment to enable visual version tracking.
+# The commit hash is injected at build time; fall back to "unknown" if
+# the environment variable is not set (e.g. local dev).
+APP_VERSION = "v0.2.0-debug"
+APP_COMMIT = os.environ.get("MANEKI_COMMIT_HASH", "1243729")
+
+
 # ── Main App ───────────────────────────────────────────────────────────────
 
 def main():
     st.set_page_config(page_title="Maneki-AI 招财猫任务控制台",
                        page_icon="🐱", layout="wide",
                        initial_sidebar_state="expanded")
+
+    # ── Browser Console Telemetry ──────────────────────────────────────────
+    # Injects a tiny JS snippet that prints the active version to the
+    # browser's developer console.  This guarantees we can inspect the exact
+    # deployed layer in Chrome DevTools without relying on UI text alone.
+    st.markdown(
+        f"""
+        <script>
+        console.log("=== Maneki-AI Factory Control Loaded: {APP_VERSION} (Commit: {APP_COMMIT}) ===");
+        console.log("🐱 Maneki-AI — Debug version tag active");
+        </script>
+        """,
+        unsafe_allow_html=True,
+    )
 
     # Sidebar
     with st.sidebar:
@@ -615,15 +637,23 @@ def main():
         st.markdown("🟢 **API Gateway** — 在线" if _gateway_healthy()
                     else "🔴 **API Gateway** — 离线")
         st.divider()
-        st.caption(f"v1.0.0 · {datetime.now(timezone.utc).strftime('%Y-%m-%d')}")
+        # ── Debug Version Footer ───────────────────────────────────────────
+        # Visible version tag in the sidebar so operators can immediately
+        # confirm which deployment layer is active.
+        st.caption(
+            f"**App Version:** {APP_VERSION}  \n"
+            f"**Commit:** `{APP_COMMIT}`"
+        )
 
     # Handle cross-page navigation
     if st.session_state.get("nav_page"):
         page = st.session_state["nav_page"]
         st.session_state["nav_page"] = None
 
-    # Route to page
-    if page == "🎮 Command & Control Center":
+    # Route to page — default to Command & Control Center if no selection
+    if not page:
+        page_command_center()
+    elif page == "🎮 Command & Control Center":
         page_command_center()
     elif page == "📋 提交任务":
         page_submit_task()
