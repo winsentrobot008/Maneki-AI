@@ -1,56 +1,153 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Active-success?style=flat-square" alt="Status">
-  <img src="https://img.shields.io/badge/Architecture-Async%20AI%20Factory-blue?style=flat-square" alt="Architecture">
-  <img src="https://img.shields.io/badge/Deploy-Render%20%2B%20Local%20Factory-ff6f00?style=flat-square" alt="Deploy">
-  <img src="https://img.shields.io/badge/Orchestration-GitHub%20Driven-purple?style=flat-square" alt="Orchestration">
+  <img src="https://img.shields.io/badge/Architecture-Multi%20Agent%20Factory-blue?style=flat-square" alt="Architecture">
+  <img src="https://img.shields.io/badge/Orchestration-CrewAI%20Powered-purple?style=flat-square" alt="Orchestration">
   <img src="https://img.shields.io/badge/Autonomy-35%25%20Built-yellow?style=flat-square" alt="Autonomy">
 </p>
 
-<h1 align="center">🐱 Maneki-AI: The Autonomous Factory</h1>
-<h3 align="center">Async AI Factory — GitHub-Driven Dispatch, Local Autonomous Execution</h3>
+<h1 align="center">🐱 Maneki-AI: 你的全自动智能业务终端</h1>
+<h3 align="center">简单交互 · 强大执行 · 24 小时自动循环</h3>
 
 <p align="center">
   <strong>Command & Control Center:</strong> <a href="https://maneki-ai.onrender.com/">https://maneki-ai.onrender.com/</a>
   <br>
-  <sub><strong>App Version:</strong> v0.3.0-factory · <strong>Architecture:</strong> Async AI Factory</sub>
+  <sub><strong>App Version:</strong> v0.3.0-factory · <strong>Architecture:</strong> Multi-Agent Factory</sub>
 </p>
 
 ---
 
-# 📋 Table of Contents
+# 📋 目录
 
-1. [Core Business Capabilities](#-core-business-capabilities)
-2. [Architecture Overview](#-architecture-overview)
-3. [Core Engine Components](#-core-engine-components)
-4. [Strategic Integration](#-strategic-integration)
-5. [Current Workflow](#-current-workflow)
-6. [Factory Integration Architecture](#-factory-integration-architecture)
-7. [AI Orchestration Strategy](#-ai-orchestration-strategy)
-8. [Extension Modules](#-extension-modules)
-9. [Project Structure](#-project-structure)
-10. [Quick Start](#-quick-start)
-11. [Required Environment Variables](#-required-environment-variables)
-
----
-
-# 🚀 Core Business Capabilities
-
-Maneki-AI Factory is designed for high-autonomy business processes. Our primary capability is the **"Autonomous Content Pipeline"**:
-
-- **Intelligence Scout (Agent-S)**: Scans external platforms (e.g., YouTube) for 3-month high-performance trends.
-- **Pattern Extraction (ECC + Codex)**: Analyzes "viral hooks" and structural paradigms from successful content.
-- **Auto-Production (OpenClaw)**: Executes the generation pipeline, from scriptwriting to asset deployment.
-- **Continuous Reporting**: Automatically summarizes daily progress, KPI metrics, and revenue status into your central Task Dispatcher.
-
-This pipeline operates as a modular **"set-and-forget"** system, allowing you to scale from a single video to a full media matrix.
+1. [核心经营哲学](#-核心经营哲学)
+2. [AI 董事会 (Multi-Model Board)](#-ai-董事会-multi-model-board)
+3. [多智能体协作引擎](#-多智能体协作引擎-powered-by-crewai)
+4. [核心应用场景](#-核心应用场景)
+5. [系统架构](#-系统架构)
+6. [核心引擎组件](#-核心引擎组件)
+7. [AI 编排策略](#-ai-编排策略)
+8. [扩展模块](#-扩展模块)
+9. [项目结构](#-项目结构)
+10. [快速开始](#-快速开始)
+11. [必需的环境变量](#-必需的环境变量)
 
 ---
 
-# 🏗️ Architecture Overview
+# 💡 核心经营哲学
 
-Maneki-AI has transitioned to an asynchronous **"GitHub-Driven Dispatch"** model. The system is decoupled into two independent planes that communicate through GitHub Issues as a durable, persistent message bus.
+Maneki-AI 是一个基于**"多智能体协作"**逻辑构建的自主业务生产工厂。它将复杂的技术架构隐藏在极简的交互界面之下，让每个人都能指挥一支由全球顶级 AI 模型组成的**"梦之队"**。
 
-### The Two Planes
+### **"简单交互，强大执行"**
+
+你无需配置模型参数，无需管理代码环境。只需输入你的商业目标，Maneki-AI 工厂将自动拆解任务、组建团队并交付成果。
+
+```
+你输入："帮我做一份 AI 视频出海的推广方案"
+      │
+      ▼
+Maneki-AI 自动完成：趋势调研 → 文案生成 → 资产部署 → 报告交付
+      │
+      ▼
+你获得：完整的推广方案 + 可执行的资产包
+```
+
+---
+
+# 🤖 AI 董事会 (Multi-Model Board)
+
+Maneki-AI 动态路由任务，为每一项工作分配最合适的**"首席专家"**：
+
+| 角色 | 模型 | 专长领域 |
+|------|------|----------|
+| **🧠 战略与调度** | **Gemini** | 全局统筹，复杂逻辑拆解与状态监控 |
+| **🔬 深度逻辑与架构** | **DeepSeek** | 高性能代码开发与数学逻辑推演 |
+| **🎨 创意与本土化** | **豆包/Doubao** | 中文互联网传播、内容钩子与营销策划 |
+| **🔗 生态整合** | **元宝/Yuanbao** | 国内生态交互、社交数据链路整合 |
+| **🌍 全球通用标准** | **OpenAI/Claude** | 标准化编程架构与复杂逻辑支持 |
+
+> 每个任务自动匹配最优模型组合，无需手动选择。
+
+---
+
+# 🛠️ 多智能体协作引擎 (Powered by CrewAI)
+
+工厂的核心在于**"智能团队装配"**逻辑：
+
+### 动态组队
+
+根据用户需求（视频 / 游戏 / 金融），自动组建临时 AI 协作小组：
+
+```
+用户需求: "制作一个 AI 游戏"
+      │
+      ▼
+自动组队:
+┌─────────────────────────────────────────────┐
+│  🧠 产品经理 (Gemini)  — 需求分析与规划      │
+│  🔧 主程 (DeepSeek)    — 核心逻辑开发        │
+│  🎨 美术指导 (Doubao)  — 视觉风格与文案      │
+│  🧪 测试工程师 (Claude)— 自动化测试与验证    │
+│  🚀 运维 (OpenClaw)    — 构建与部署          │
+└─────────────────────────────────────────────┘
+```
+
+### 层级执行流
+
+严格的任务依赖管理，确保每一道工序符合质检标准：
+
+```
+编码 → 测试 → 审查 → 部署
+  │      │      │      │
+  ▼      ▼      ▼      ▼
+通过 ← 通过 ← 通过 ← ✅ 交付
+```
+
+### 闭环金融模型
+
+内置 DeFi 自我结算系统，通过自动清算手续费为工厂的 API 调用提供**永续资金**。
+
+---
+
+# 🚀 核心应用场景
+
+## 1. 📹 自动媒体工厂
+
+从趋势分析到爆火文案生成，全自动视频矩阵部署：
+
+- **趋势侦察 (Agent-S)**：扫描 YouTube/TikTok 等平台，识别 3 个月内的高性能趋势
+- **爆款模式提取 (ECC + Codex)**：分析"病毒钩子"和成功内容的结构范式
+- **自动生产 (OpenClaw)**：执行从脚本编写到资产部署的完整生成流水线
+- **持续报告**：自动汇总每日进度、KPI 指标和收益状态
+
+## 2. 🎮 AI 游戏工厂
+
+快速原型构建，自动化测试与游戏商店发布：
+
+- **市场情报 (Agent-S)**：分析热门游戏类型和玩家反馈，识别"高潜力"利基项目
+- **快速原型 (ECC + Codex)**：基于验证过的架构模式自动组装游戏逻辑
+- **持续分发 (Agent-S)**：处理自动构建、部署和商店页面更新
+- **财务自主 (ECC)**：游戏收入自动重新分配至 API Token 预算，确保 24/7 自主生产
+
+## 3. 💰 金融智能终端
+
+实时金融新闻监控，情绪分析，自动化清算管理：
+
+- **全球新闻情报 (Agent-S)**：24/7 聚合实时全球金融新闻和市场情绪
+- **预测分析 (ECC + LLM)**：处理市场数据，提供可操作趋势和"看涨/看跌"情绪分析
+- **自动执行 (OpenClaw)**：通过严格逻辑参数与券商 API 交互执行交易
+- **风险控制引擎 (ECC)**：强制"熔断机制"和止损逻辑，优先保障资本安全
+
+## 4. 🌐 DeFi 基础设施与跨境结算
+
+- **智能合约工厂 (OpenClaw)**：自动部署和管理流动性交易市场
+- **跨境情报 (Agent-S)**：分析全球资金流向，提供高效结算路径
+- **自主清算 (ECC)**：执行无缝资产转换，捕获交易手续费维持工厂运营
+- **安全优先合规**：自动链上风险监控，确保所有金融操作在安全参数内
+
+---
+
+# 🏗️ 系统架构
+
+Maneki-AI 采用异步的 **"GitHub-Driven Dispatch"** 模型，系统解耦为两个独立平面：
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -93,644 +190,249 @@ Maneki-AI has transitioned to an asynchronous **"GitHub-Driven Dispatch"** model
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Key Design Decisions
+### 关键设计决策
 
-| Decision | Rationale |
-|----------|-----------|
-| **GitHub Issues as Message Bus** | Zero-infrastructure, durable, auditable, free — no RabbitMQ, Redis, or SQS required |
-| **Decoupled Dispatch & Execution** | Cloud and local operate independently; each can be updated or restarted without affecting the other |
-| **Offline Resilience** | Issues accumulate while local is offline; watcher processes backlog on reconnection |
-| **No Tunnel Dependency for Dispatch** | Tunnel is only needed for live streaming and callbacks, not for task dispatch |
-
----
-
-# 🧠 Core Engine Components
-
-The factory is powered by three complementary engines that form a trinity — ECC directs the mission, OpenClaw executes internal code operations, and Agent-S performs external web-based intelligence gathering and interaction.
-
-## ECC (Execution Control Core) — The Central Nervous System
-
-**File:** `workshop/ecc_core.py`
-
-ECC is the factory's **Central Nervous System**. It orchestrates the entire execution lifecycle — from task ingestion to completion — ensuring that every production request is decomposed, sequenced, and executed safely.
-
-| Function | Description |
-|----------|-------------|
-| **Task Decomposition** | Breaks high-level production requests into structured, executable steps |
-| **Context Management** | Maintains execution context across sub-tasks, ensuring continuity and state awareness |
-| **Dependency Sequencing** | Manages inter-task dependencies — determines what must run before what |
-| **Safety Orchestration** | Enforces operational guardrails, validates preconditions, and prevents unsafe execution paths |
-| **Strategic Direction** | Determines **what** to do and **when** to do it — the "brain" of the factory |
-
-## OpenClaw (The "Lobster" Claw) — The Mechanical Arm
-
-**File:** `workshop/openclaw_core.py`
-
-OpenClaw is the factory's **Mechanical Arm** — a specialized agent designed to interact directly with the codebase. Like a lobster's claw, it reaches into the file system, "grabs" production tasks from the queue, and performs precise file/code transformations.
-
-| Function | Description |
-|----------|-------------|
-| **CLI Command Generation** | Translates tactical instructions into precise CLI commands |
-| **Codebase Interaction** | Reads, writes, and modifies files in the workspace |
-| **Output Capture** | Captures stdout, stderr, return codes, and execution timing |
-| **Task Grabbing** | Pulls tasks from the execution queue and executes them against the filesystem |
-| **Tactical Execution** | Determines **how** to do it — the "hands" of the factory |
-
-## Agent-S (The "Specialized Scout/Eye") — The Browser-Based Agent
-
-**Directory:** `agent_engine/`
-
-Agent-S is the factory's **Specialized Scout/Eye** — a browser-based autonomous agent designed to navigate external web environments, interact with SaaS platforms, and perform tasks beyond direct codebase access. It extends the factory's reach into the wider digital ecosystem.
-
-| Function | Description |
-|----------|-------------|
-| **Web Navigation** | Autonomously browses websites, fills forms, and extracts data from web interfaces |
-| **SaaS Interaction** | Interacts with third-party platforms (GitHub, Slack, Jira, etc.) via their web UIs |
-| **Intelligence Gathering** | Scouts external sources for information, monitors dashboards, and collects signals |
-| **Bridge Communication** | Communicates with ECC and OpenClaw via the agent_engine bridge queue |
-| **External Operations** | Determines **where** to look and **what** to gather — the "eyes" of the factory |
-
-## Workflow Integration: The Trinity
-
-ECC, OpenClaw, and Agent-S operate as a tightly coupled **trinity**:
-
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    ECC + OPENCLAW + AGENT-S TRINITY                       │
-│                                                                           │
-│   ┌─────────────────────────────────────────────────────────────┐        │
-│   │                    ECC (The Brain)                            │        │
-│   │                                                              │        │
-│   │  1. Receive task from run_task.py                            │        │
-│   │  2. Decompose into steps: analyze → plan → execute → verify  │        │
-│   │  3. Determine step dependencies and ordering                 │        │
-│   │  4. Dispatch internal steps to OpenClaw                      │        │
-│   │  5. Dispatch external steps to Agent-S                       │        │
-│   │  6. Verify results and decide next action                    │        │
-│   └──────────┬──────────────────────────────────┬───────────────┘        │
-│              │                                  │                         │
-│              │ "Execute: deploy"                │ "Scout: check status"   │
-│              ▼                                  ▼                         │
-│   ┌─────────────────────┐          ┌──────────────────────┐              │
-│   │  OpenClaw (The Claw)│          │ Agent-S (The Eye)    │              │
-│   │                     │          │                      │              │
-│   │  • CLI commands     │          │  • Web navigation    │              │
-│   │  • File operations  │          │  • SaaS interaction  │              │
-│   │  • Code transforms  │          │  • Data extraction   │              │
-│   │  • Output capture   │          │  • Intel gathering   │              │
-│   └──────────┬──────────┘          └──────────┬───────────┘              │
-│              │                                  │                         │
-│              └──────────┬───────────────────────┘                        │
-│                         ▼                                                │
-│   ┌─────────────────────────────────────────────────────────────┐        │
-│   │              ECC (Verification Loop)                          │        │
-│   │                                                              │        │
-│   │  • Result OK    → proceed to next step or mark complete      │        │
-│   │  • Result FAIL  → retry, escalate, or abort                  │        │
-│   │  • All steps done → write final log to logs/                 │        │
-│   └─────────────────────────────────────────────────────────────┘        │
-│                                                                           │
-│   🧠 ECC directs the strategy (The "What" and "When")                    │
-│   🔧 OpenClaw executes internal code operations (The "How" — inside)     │
-│   👁️ Agent-S performs external web intelligence (The "Where" — outside)  │
-└─────────────────────────────────────────────────────────────────────────┘
-```
-
-### Analogy
-
-| Component | Analogy | Role |
-|-----------|---------|------|
-| **ECC** | 🧠 Central Nervous System | Strategic direction — decides what to do and when |
-| **OpenClaw** | 🦞 Lobster Claw (Mechanical Arm) | Tactical execution — decides how to do it and performs the action |
-| **Agent-S** | 👁️ Specialized Scout/Eye | External intelligence — determines where to look and what to gather |
+| 决策 | 理由 |
+|------|------|
+| **GitHub Issues 作为消息总线** | 零基础设施、持久化、可审计、免费 — 无需 RabbitMQ、Redis 或 SQS |
+| **解耦调度与执行** | 云端和本地独立运行；各自可独立更新或重启 |
+| **离线韧性** | 本地离线时任务累积；重连后批量处理积压任务 |
+| **无隧道依赖** | 隧道仅用于实时流和回调，任务调度不依赖隧道 |
 
 ---
 
-# 🔗 Strategic Integration
+# 🧠 核心引擎组件
 
-These agents function as a **trinity**: ECC directs the mission, OpenClaw executes internal code operations, and Agent-S performs external web-based intelligence gathering and interaction.
+工厂由三个互补引擎组成**三一体（Trinity）**—— ECC 指挥任务，OpenClaw 执行内部代码操作，Agent-S 执行外部网络情报收集。
 
-### The Three Domains
+## ECC（Execution Control Core）— 🧠 中央神经系统
 
-| Domain | Component | Scope | Capability |
-|--------|-----------|-------|------------|
-| **🧠 Strategy** | **ECC** | Internal orchestration | Task decomposition, dependency sequencing, safety enforcement, verification |
-| **🔧 Internal Execution** | **OpenClaw** | Codebase operations | CLI commands, file I/O, code transformation, output capture |
-| **👁️ External Intelligence** | **Agent-S** | Web & SaaS environments | Browser automation, form interaction, data extraction, platform integration |
+**文件:** `workshop/ecc_core.py`
 
-### How the Trinity Works Together
+ECC 是工厂的**大脑**，编排整个执行生命周期 — 从任务接收到完成。
 
-1. **ECC receives a mission** — A high-level production order arrives via GitHub Issues
-2. **ECC decomposes the mission** — Breaks it into internal steps (code changes) and external steps (web research, SaaS operations)
-3. **OpenClaw executes internal steps** — Performs file operations, runs CLI commands, transforms code
-4. **Agent-S executes external steps** — Browses documentation, checks SaaS dashboards, gathers intelligence
-5. **ECC verifies all results** — Validates outputs from both agents, decides next actions
-6. **The factory logs the outcome** — A structured execution log is written to `logs/`
+| 功能 | 描述 |
+|------|------|
+| **任务分解** | 将高级生产请求分解为结构化、可执行的步骤 |
+| **上下文管理** | 跨子任务维护执行上下文，确保连续性和状态感知 |
+| **依赖排序** | 管理任务间依赖关系 — 确定执行顺序 |
+| **安全编排** | 强制执行操作护栏，验证前置条件，防止不安全执行路径 |
+| **策略指导** | 决定**做什么**和**何时做** |
 
-### Communication Flow
+## OpenClaw（"龙虾钳"）— 🔧 机械臂
+
+**文件:** `workshop/openclaw_core.py`
+
+OpenClaw 是工厂的**双手** — 专门与代码库直接交互的代理。
+
+| 功能 | 描述 |
+|------|------|
+| **CLI 命令生成** | 将战术指令转化为精确的 CLI 命令 |
+| **代码库交互** | 读取、写入和修改工作区文件 |
+| **输出捕获** | 捕获 stdout、stderr、返回码和执行时间 |
+| **任务抓取** | 从执行队列中拉取任务并针对文件系统执行 |
+| **战术执行** | 决定**如何做** |
+
+## Agent-S（"侦察兵/眼睛"）— 👁️ 浏览器代理
+
+**目录:** `agent_engine/`
+
+Agent-S 是工厂的**眼睛** — 基于浏览器的自主代理，负责外部世界交互。
+
+| 功能 | 描述 |
+|------|------|
+| **网页导航** | 自主浏览网站、填写表单、从 Web 界面提取数据 |
+| **SaaS 交互** | 通过 Web UI 与第三方平台交互（GitHub、Slack、Jira 等） |
+| **情报收集** | 侦察外部信息源、监控仪表板、收集信号 |
+| **桥接通信** | 通过 agent_engine 桥接队列与 ECC 和 OpenClaw 通信 |
+| **外部操作** | 决定**看哪里**和**收集什么** |
+
+### 三一体协作
 
 ```
-                    ┌─────────────────┐
-                    │   GitHub Issue  │  Mission input
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │  ECC (Brain)    │  Strategic decomposition
-                    └───┬─────────┬───┘
-                        │         │
-              ┌─────────┘         └─────────┐
-              ▼                              ▼
-    ┌──────────────────┐          ┌──────────────────┐
-    │  OpenClaw (Claw) │          │ Agent-S (Eye)    │
-    │  Internal Ops    │          │ External Ops     │
-    └────────┬─────────┘          └────────┬─────────┘
-             │                             │
-             └──────────┬──────────────────┘
-                        ▼
-               ┌─────────────────┐
-               │  ECC (Verify)   │  Result validation
-               └────────┬────────┘
-                        │
-                        ▼
-               ┌─────────────────┐
-               │   logs/         │  Execution record
-               └─────────────────┘
+🧠 ECC 决定策略（"做什么"和"何时做"）
+🔧 OpenClaw 执行内部代码操作（"怎么做" — 内部）
+👁️ Agent-S 执行外部网络情报（"看哪里" — 外部）
 ```
 
 ---
 
-# ⚙️ Current Workflow
+# 🤖 AI 编排策略
 
-## Step-by-Step Execution
+Maneki-AI 采用 **"多模型编排"** 模式，AI 总监与操作代理（ECC、OpenClaw、Agent-S）共存协作。
 
-### 1. Dispatch — User Triggers via UI
+### 三阶段协作
 
-The user triggers a production task through the Render dashboard. The frontend acts as an **Issue Dispatcher**:
+#### 阶段 1：🧠 策略阶段 — 编排者定义"作战计划"
 
-- `factory_ui.py` renders the trigger interface
-- `github_issue.py` creates a new GitHub Issue in the `winsentrobot008/DevDirector-Tasks` repository
-- The Issue body contains the task specification, parameters, and metadata
+编排者（项目总监/通用 AI）分析用户意图并生成高级战略计划：
 
-### 2. Monitoring — Watcher Polls for Orders
+- **需求解读**：将模糊的用户请求转化为结构化任务目标
+- **架构设计**：确定系统架构、组件边界和集成点
+- **任务分解**：将任务分解为高级阶段
+- **风险评估**：识别潜在故障点并定义回退策略
+- **资源分配**：决定使用哪些操作代理及其能力范围
 
-A local **`watcher.py`** agent continuously polls the `DevDirector-Tasks` repository for new production orders:
+#### 阶段 2：⚙️ 执行阶段 — 引擎室精确执行
 
-- Detects unprocessed Issues
-- Extracts task name and parameters from the Issue body
-- Triggers the execution pipeline
+编排者将粒度步骤委托给专门的操作代理（"引擎室"）：
 
-### 3. Execution — Strategize & Operate
+| 代理 | 执行阶段角色 |
+|------|-------------|
+| **ECC** | 接收任务指令 → 分解为可执行步骤 → 排序依赖 → 执行安全护栏 |
+| **OpenClaw** | 执行代码库操作 — CLI 命令、文件转换、输出捕获 |
+| **Agent-S** | 执行外部操作 — 网页导航、SaaS 交互、情报收集 |
 
-Once an order is detected, the `run_task.py` pipeline is triggered:
+#### 阶段 3：🔄 反馈循环 — 实时策略调整
 
-1. **Strategize (ECC)**: The task is decomposed into structured steps. Dependencies are resolved. A safe execution plan is formulated.
-2. **Operate (OpenClaw)**: Each internal step is executed against the codebase via CLI commands. Output is captured and reported back.
-3. **Scout (Agent-S)**: Each external step is executed via browser-based web navigation and SaaS interaction.
-4. **Verify (ECC)**: Results are validated. On success, the next step proceeds. On failure, the system retries, escalates, or aborts.
-5. **Log**: A structured execution log is written to `logs/`.
+执行后，操作代理向编排者报告成功/失败：
 
-### Data Flow Diagram
+- **成功路径**：结果验证 → 编排者确认任务进展 → 下一阶段开始
+- **失败路径**：代理报告失败及上下文 → 编排者分析根因 → 调整策略：
+  - **重试**：相同方法，不同参数
+  - **绕行**：替代执行路径
+  - **升级**：需要人工干预
+  - **终止**：任务终止，记录部分结果
 
-```
-User Input (UI)
-      │
-      ▼
-factory_ui.py ──→ github_issue.py ──→ GitHub Issue (DevDirector-Tasks)
-                                              │
-                                              │ (poll)
-                                              ▼
-                                        watcher.py
-                                              │
-                                              ▼
-                                        run_task.py
-                                              │
-                              ┌───────────────┼───────────────┐
-                              ▼               ▼               ▼
-                         ECC (Brain)   OpenClaw (Claw)  Agent-S (Eye)
-                         • Decompose    • Generate cmd   • Navigate web
-                         • Sequence     • Execute        • Interact SaaS
-                         • Verify       • Capture output • Gather intel
-                              │               │               │
-                              └───────────────┼───────────────┘
-                                              │
-                                              ▼
-                                          logs/
-```
+### 为什么是多模型编排？
+
+| 优势 | 描述 |
+|------|------|
+| **🧠 并行智能** | 高级抽象思考（编排者）和低级代码执行（引擎室）同时发生 |
+| **🛡️ 关注点分离** | 编排者关注"做什么"和"为什么"；引擎室关注"怎么做" |
+| **🔄 自纠正** | 反馈循环实现实时策略调整，无需重启整个流水线 |
+| **🔌 可插拔总监** | 不同编排者可根据任务类型切换 |
+| **📈 可扩展** | 新操作代理可添加到引擎室，无需更改编排层 |
 
 ---
 
-# 🏭 Factory Integration Architecture
+# 🧩 扩展模块
 
-The Maneki-AI Factory has been extended with a **six-component integration architecture** that layers strategic intelligence, knowledge management, and specialized execution variants under the ECC/OpenClaw/Agent-S trinity.
-
-## Integrated Components
-
-| # | Component | Source | Directory | Role |
-|---|-----------|--------|-----------|------|
-| 1 | **ECC** | `workshop/ecc_core.py` | `workshop/ecc/` | 🧠 Central Nervous System — Strategic Orchestration |
-| 2 | **OpenClaw** | `workshop/openclaw_core.py` | `workshop/agents/openclaw/` | 🔧 Mechanical Arm — Codebase Execution Agent |
-| 3 | **Agent-S** | `agent_engine/` (Simular AI) | `agent_engine/` | 👁️ Specialized Scout/Eye — Browser-Based External Agent |
-| 4 | **Codex** | `oh-my-codex` | `workshop/lib/codex/` | 📚 Documentation & Knowledge Dependency |
-| 5 | **DevDirector-Tasks** | GitHub Issues | `winsentrobot008/DevDirector-Tasks` | 📨 Central Issue Dispatcher (Durable Message Bus) |
-| 6 | **Agency-Agents** | `agency-agents` | `workshop/ecc/strategy/` | 🧠 Strategic Decision-Making Layer |
-
-## Dependency Map
-
-```
-Layer 0 (Foundation):    DevDirector-Tasks ───── Codex
-                                │                   │
-                                │ dispatch          │ knowledge
-                                ▼                   ▼
-Layer 1 (Strategy):      ┌─────────────┐     Agency-Agents
-                                │             │         │
-                                │             │ strategic context
-                                │             ▼
-Layer 2 (Orchestration): │    ECC Core    │
-                                │  ┌───────────┐ │
-                                │  │ Decompose  │ │
-                                │  │ Sequence   │ │
-                                │  │ Verify     │ │
-                                │  └─────┬─────┘ │
-                                └────────┼────────┘
-                                         │
-                    ┌────────────────────┼────────────────────┐
-                    │ consult            │ internal           │ external
-                    ▼                    ▼                    ▼
-Layer 3 (Execution):  Codex          OpenClaw            Agent-S
-                                   ┌──────────┐      ┌──────────┐
-                                   │ clawwork │      │ bridge   │
-                                   │ hkuds    │      │ daemon   │
-                                   └──────────┘      │ worker   │
-                                                     └──────────┘
-```
-
-## OpenClaw Variants (ClawWork & ClawWork-HKUDS)
-
-OpenClaw now supports two execution variants under `workshop/agents/openclaw/`:
-
-| Variant | Path | Role |
-|---------|------|------|
-| **ClawWork** | `workshop/agents/openclaw/clawwork/` | Core OpenClaw implementation — tactical CLI execution and file operations |
-| **ClawWork-HKUDS** | `workshop/agents/openclaw/hkuds/` | HKUDS variant — enhanced codebase interaction with deeper analysis capabilities |
-
-Both variants are dispatched by ECC and follow the same `generate_command()` → `execute()` → `capture()` contract.
-
-## Codex Knowledge Base (oh-my-codex)
-
-Mapped as a documentation/knowledge dependency at `workshop/lib/codex/`:
-
-- **ECC** queries Codex for strategic context during task decomposition
-- **OpenClaw** references Codex for code patterns, examples, and best practices
-- **Agency-Agents** consume Codex for informed strategic decision-making
-
-## Agency-Agents Strategic Layer
-
-Integrated at `workshop/ecc/strategy/` as the strategic decision-making layer:
-
-- **Input**: Task from DevDirector-Tasks + knowledge from Codex
-- **Process**: Strategic analysis → risk evaluation → multi-path recommendation
-- **Output**: Strategic context injected into ECC decomposition
-- **Relationship**: Agency-Agents sit *above* ECC, feeding strategic intelligence into the orchestration loop
-
-## Complete Execution Flow
-
-```
-1. Dispatch     → factory_ui.py → github_issue.py → DevDirector-Tasks (GitHub Issue)
-2. Poll & Ingest → watcher.py → run_task.py
-3. Strategize   → Agency-Agents analyze task, evaluate strategies
-4. Decompose    → ECC receives task + strategic context → structured steps
-5. Consult      → ECC & OpenClaw query Codex for documentation & patterns
-6. Execute Int. → ECC → OpenClaw (ClawWork/HKUDS) → CLI/file operations
-7. Execute Ext. → ECC → Agent-S → web navigation & SaaS interaction
-8. Verify       → ECC collects results → validates → decides next action
-9. Log          → Structured execution log → logs/
-```
-
-## Architecture Diagram
-
-```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                      MANEKI-AI FACTORY INTEGRATION ARCHITECTURE                  │
-│                                                                                   │
-│   🌐 RENDER CLOUD (Issue Dispatcher)                                              │
-│   ┌─────────────────────────────────────────────────────────────────────┐         │
-│   │  factory_ui.py → github_issue.py → DevDirector-Tasks (GitHub Issues)│         │
-│   └──────────────────────────────────────────────────┬──────────────────┘         │
-│                                                      │                             │
-│                                                      ▼                             │
-│   🏭 LOCAL FACTORY (Execution Engine)                                             │
-│   ┌─────────────────────────────────────────────────────────────────────┐         │
-│   │  ┌──────────────────────────────────────────────────────────────┐  │         │
-│   │  │                    ECC (workshop/ecc/)                        │  │         │
-│   │  │  ┌─────────────────────────────────────────────────────────┐ │  │         │
-│   │  │  │  Agency-Agents (workshop/ecc/strategy/)                 │ │  │         │
-│   │  │  │  • Strategic analysis & risk evaluation                 │ │  │         │
-│   │  │  │  • Multi-path recommendation                            │ │  │         │
-│   │  │  └───────────────────────┬─────────────────────────────────┘ │  │         │
-│   │  │                          │ strategic context                  │  │         │
-│   │  │  ┌───────────────────────▼─────────────────────────────────┐ │  │         │
-│   │  │  │  ECC Core — Decompose → Sequence → Verify               │ │  │         │
-│   │  │  │  • Task decomposition into structured steps             │ │  │         │
-│   │  │  │  • Dependency sequencing & safety enforcement           │ │  │         │
-│   │  │  │  • Result verification & decision loop                  │ │  │         │
-│   │  │  └──┬──────────────┬──────────────────┬───────────────────┘ │  │         │
-│   │  │     │              │                  │                      │  │         │
-│   │  │     │ consult      │ dispatch          │ dispatch            │  │         │
-│   │  │     ▼              ▼                   ▼                     │  │         │
-│   │  │  ┌────────┐ ┌────────────────┐ ┌────────────────────┐      │  │         │
-│   │  │  │ Codex  │ │ OpenClaw       │ │ Agent-S            │      │  │         │
-│   │  │  │(lib/   │ │(agents/        │ │(agent_engine/)     │      │  │         │
-│   │  │  │ codex/)│ │ openclaw/)     │ │ • bridge.py        │      │  │         │
-│   │  │  │ • Docs │ │ • clawwork/    │ │ • cline_daemon.py  │      │  │         │
-│   │  │  │ • Pats │ │ • hkuds/       │ │ • cline_worker.py  │      │  │         │
-│   │  │  │ • Know │ │ • CLI gen/exec │ │ • Web nav/SaaS     │      │  │         │
-│   │  │  └────────┘ └────────────────┘ └────────────────────┘      │  │         │
-│   │  └──────────────────────────────────────────────────────────────┘  │         │
-│   └─────────────────────────────────────────────────────────────────────┘         │
-│                                                                                   │
-│   🔄 Flow: Dispatch → Strategize → Decompose → Consult → Execute → Verify → Log  │
-└─────────────────────────────────────────────────────────────────────────────────┘
-```
-
-## Dependency Map (JSON)
-
-A machine-readable dependency map is available at:
-[`workshop/factory_integration_map.json`](workshop/factory_integration_map.json)
-
-This JSON file contains:
-- Full component definitions with roles, responsibilities, and integration points
-- Directed dependency graph with layered node structure
-- Target directory layout for all six components
-- Complete 9-step execution flow specification
-- ASCII architecture diagram
+| 模块 | 路径 | 角色 |
+|------|------|------|
+| **`factory_ui.py`** | `./factory_ui.py` | 前端界面逻辑 — 渲染工厂触发按钮和用户控件 |
+| **`github_issue.py`** | `./github_issue.py` | GitHub API 客户端 — 在 `DevDirector-Tasks` 中创建 Issue |
+| **`run_task.py`** | `./run_task.py` | 执行流水线 — 读取 `commands.json`，通过 subprocess 调度 CLI 命令 |
+| **`commands.json`** | `./commands.json` | 系统任务注册表 — 将任务名称映射到 CLI 命令、引擎和超时 |
+| **`workshop/`** | `./workshop/` | 引擎核心 — 包含 `ecc_core.py` 和 `openclaw_core.py` |
+| **`agent_engine/`** | `./agent_engine/` | Agent-S 集成层 — 桥接队列、Cline 守护进程/工作进程、安全协议 |
 
 ---
 
-# 🤖 AI Orchestration Strategy
-
-The Maneki-AI Factory utilizes a **"Multi-Model Orchestration"** pattern where specialized AI directors (like the Project Director) coexist and collaborate with operational agents (ECC, OpenClaw, Agent-S).
-
-## Orchestrator Collaboration Model
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    MULTI-MODEL ORCHESTRATION PATTERN                          │
-│                                                                               │
-│   ┌──────────────────────────────────────────────────────────────────┐       │
-│   │              ORCHESTRATOR (Project Director / General AI)          │       │
-│   │                                                                   │       │
-│   │  Role: High-Level Strategist                                      │       │
-│   │  • Architectural design & requirement interpretation              │       │
-│   │  • High-level task decomposition into mission directives          │       │
-│   │  • Defines the "Battle Plan" from user intent                     │       │
-│   │  • Adapts strategy in real-time based on agent feedback           │       │
-│   └──────────────────────────┬────────────────────────────────────────┘       │
-│                              │                                               │
-│                              │ delegates granular steps                      │
-│                              ▼                                               │
-│   ┌──────────────────────────────────────────────────────────────────┐       │
-│   │              ENGINE ROOM (Operational Agents)                      │       │
-│   │                                                                   │       │
-│   │  ┌──────────────┐  ┌────────────────┐  ┌────────────────────┐   │       │
-│   │  │    ECC        │  │   OpenClaw     │  │    Agent-S         │   │       │
-│   │  │  (Brain)      │  │  (Claw)        │  │   (Eye)           │   │       │
-│   │  │  • Sequence   │  │  • Execute CLI │  │  • Browse web     │   │       │
-│   │  │  • Verify     │  │  • File ops    │  │  • SaaS interact  │   │       │
-│   │  │  • Safety     │  │  • Transform   │  │  • Intel gather   │   │       │
-│   │  └──────────────┘  └────────────────┘  └────────────────────┘   │       │
-│   └──────────────────────────────────────────────────────────────────┘       │
-│                              │                                               │
-│                              │ report success/failure                        │
-│                              ▼                                               │
-│   ┌──────────────────────────────────────────────────────────────────┐       │
-│   │              ORCHESTRATOR (Feedback Loop)                         │       │
-│   │                                                                   │       │
-│   │  • Analyzes operational results from Engine Room                  │       │
-│   │  • Adapts strategy: retry, re-route, escalate, or abort          │       │
-│   │  • Generates next set of directives                               │       │
-│   │  • Maintains high-level context across iterations                 │       │
-│   └──────────────────────────────────────────────────────────────────┘       │
-│                                                                               │
-│   🔄 Strategy Phase → Execution Phase → Feedback Loop → Adapt → Repeat      │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-## The Three Phases of Collaboration
-
-### 1. 🧠 Strategy Phase — The Orchestrator Defines the "Battle Plan"
-
-The Orchestrator (Project Director / General AI) analyzes the user's intent and produces a high-level strategic plan:
-
-- **Requirement Interpretation**: Translates ambiguous user requests into structured mission objectives
-- **Architectural Design**: Determines the system architecture, component boundaries, and integration points
-- **Task Decomposition**: Breaks the mission into high-level phases — what needs to happen and in what order
-- **Risk Assessment**: Identifies potential failure points and defines fallback strategies
-- **Resource Allocation**: Decides which operational agents to engage and in what capacity
-
-**Output**: A structured "Battle Plan" — a set of mission directives ready for execution.
-
-### 2. ⚙️ Execution Phase — The Engine Room Executes with Precision
-
-The Orchestrator delegates granular steps to the specialized operational agents, which function as the **"Engine Room"**:
-
-| Agent | Role in Execution Phase |
-|-------|------------------------|
-| **ECC** | Receives mission directives → decomposes into executable steps → sequences dependencies → enforces safety guardrails |
-| **OpenClaw** | Executes codebase operations — CLI commands, file transformations, output capture |
-| **Agent-S** | Performs external operations — web navigation, SaaS interaction, intelligence gathering |
-
-The Engine Room operates with **technical precision**, executing the Orchestrator's high-level directives without needing to re-interpret the original user intent.
-
-### 3. 🔄 Feedback Loop — Real-Time Strategy Adaptation
-
-After execution, operational agents report success/failure back to the Orchestrator:
-
-- **Success Path**: Results are validated → Orchestrator confirms mission progress → next phase begins
-- **Failure Path**: Agent reports failure with context → Orchestrator analyzes root cause → adapts strategy:
-  - **Retry**: Same approach, different parameters
-  - **Re-route**: Alternative execution path
-  - **Escalate**: Human intervention required
-  - **Abort**: Mission terminated with partial results logged
-- **Partial Success**: Some steps succeed, others fail → Orchestrator decides which to retry and which to skip
-
-This **self-correcting loop** ensures the system can handle unexpected failures without human intervention.
-
-## Why Multi-Model Orchestration?
-
-| Benefit | Description |
-|---------|-------------|
-| **🧠 Parallel Intelligence** | High-level abstract thinking (Orchestrator) and low-level code execution (Engine Room) occur simultaneously, not sequentially |
-| **🛡️ Separation of Concerns** | Orchestrator focuses on "what" and "why"; Engine Room focuses on "how" — each optimized for its domain |
-| **🔄 Self-Correcting** | The feedback loop enables real-time strategy adaptation without restarting the entire pipeline |
-| **🔌 Pluggable Directors** | Different Orchestrators (Project Director, Code Architect, QA Director) can be swapped in depending on the mission type |
-| **📈 Scalable** | New operational agents can be added to the Engine Room without changing the Orchestration layer |
-
-## Orchestrator ↔ Engine Room Contract
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    COLLABORATION CONTRACT                         │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  Orchestrator → Engine Room:                                      │
-│  ┌───────────────────────────────────────────────────────────┐   │
-│  │ {                                                          │   │
-│  │   "mission_id": "M-20260602-001",                         │   │
-│  │   "directive": "Deploy v2.1 to staging",                  │   │
-│  │   "phases": [                                              │   │
-│  │     {"phase": 1, "action": "build",   "agent": "openclaw"},│   │
-│  │     {"phase": 2, "action": "test",    "agent": "openclaw"},│   │
-│  │     {"phase": 3, "action": "verify",  "agent": "agent-s"}, │   │
-│  │     {"phase": 4, "action": "deploy",  "agent": "openclaw"} │   │
-│  │   ],                                                        │   │
-│  │   "fallback": "rollback",                                   │   │
-│  │   "context": { ... }                                        │   │
-│  │ }                                                           │   │
-│  └───────────────────────────────────────────────────────────┘   │
-│                                                                   │
-│  Engine Room → Orchestrator:                                      │
-│  ┌───────────────────────────────────────────────────────────┐   │
-│  │ {                                                          │   │
-│  │   "mission_id": "M-20260602-001",                         │   │
-│  │   "phase": 2,                                              │   │
-│  │   "status": "failed",                                      │   │
-│  │   "error": "Test suite: 3/47 failures in auth module",     │   │
-│  │   "recommendation": "retry_with_fix",                      │   │
-│  │   "artifacts": { ... }                                     │   │
-│  │ }                                                          │   │
-│  └───────────────────────────────────────────────────────────┘   │
-│                                                                   │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-This parallel structure ensures that high-level abstract thinking and low-level code execution occur simultaneously, enabling a self-correcting autonomous system that can handle complex, multi-step production workflows without human intervention.
-
----
-
-# 🧩 Extension Modules
-
-| Module | Path | Role |
-|--------|------|------|
-| **`factory_ui.py`** | `./factory_ui.py` | Frontend interface logic — renders the factory trigger button and user controls on the Render dashboard |
-| **`github_issue.py`** | `./github_issue.py` | GitHub API client — creates Issues in `winsentrobot008/DevDirector-Tasks` as production orders |
-| **`run_task.py`** | `./run_task.py` | Execution pipeline — reads `commands.json`, dispatches CLI commands via subprocess, writes structured logs |
-| **`commands.json`** | `./commands.json` | System task registry — maps task names to CLI commands, engines (ECC/OpenClaw/Agent-S), and timeouts |
-| **`workshop/`** | `./workshop/` | Engine core — contains `ecc_core.py` (ECC) and `openclaw_core.py` (OpenClaw) |
-| **`agent_engine/`** | `./agent_engine/` | Agent-S integration layer — bridge queue, Cline daemon/worker, safety protocols for browser-based autonomous operations |
-
----
-
-# 📁 Project Structure
+# 📁 项目结构
 
 ```
 Maneki-AI/
-├── app.py                      # Streamlit cloud dashboard (Render entry point)
-├── factory_ui.py               # Frontend interface logic (Issue dispatcher)
-├── github_issue.py             # GitHub API client for Issue creation
-├── run_task.py                 # Execution pipeline (commands.json → subprocess)
-├── commands.json               # System task registry (ECC + OpenClaw + Agent-S)
-├── start_factory.py            # Local factory orchestrator
-├── render.yaml                 # Render deployment configuration
-├── requirements.txt            # Python dependencies
-├── runtime.txt                 # Python runtime version
-├── .env.example                # Environment variable template
-├── .clinerules                 # Cline agent operational rules
+├── app.py                      # Streamlit 云端仪表板（Render 入口）
+├── factory_ui.py               # 前端界面逻辑（Issue 调度器）
+├── github_issue.py             # GitHub API 客户端（Issue 创建）
+├── run_task.py                 # 执行流水线（commands.json → subprocess）
+├── commands.json               # 系统任务注册表（ECC + OpenClaw + Agent-S）
+├── start_factory.py            # 本地工厂编排器
+├── render.yaml                 # Render 部署配置
+├── requirements.txt            # Python 依赖
+├── runtime.txt                 # Python 运行时版本
+├── .env.example                # 环境变量模板
+├── .clinerules                 # Cline 代理操作规则
 │
-├── workshop/                   # Engine core
-│   ├── ecc_core.py             # ECC — Central Nervous System
-│   └── openclaw_core.py        # OpenClaw — Mechanical Arm
+├── workshop/                   # 引擎核心
+│   ├── ecc_core.py             # ECC — 中央神经系统
+│   ├── openclaw_core.py        # OpenClaw — 机械臂
+│   └── factory_integration_map.json  # 依赖映射图
 │
-├── agent_engine/               # Agent-S — Specialized Scout/Eye
-│   ├── bridge.py               # Inter-agent bridge queue
-│   ├── cline_daemon.py         # Agent-S daemon process
-│   ├── cline_worker.py         # Agent-S worker process
-│   └── safety/                 # Browser safety protocols
+├── agent_engine/               # Agent-S — 侦察兵/眼睛
+│   ├── bridge.py               # 代理间桥接队列
+│   ├── cline_daemon.py         # Agent-S 守护进程
+│   ├── cline_worker.py         # Agent-S 工作进程
+│   └── safety/                 # 浏览器安全协议
 │
-├── core/                       # Legacy infrastructure
-│   ├── api_gateway.py          # HTTP API Gateway (port 8000)
-│   └── task_listener.py        # Task queue poller & executor
+├── core/                       # 基础设施
+│   ├── api_gateway.py          # HTTP API 网关（端口 8000）
+│   └── task_listener.py        # 任务队列轮询器与执行器
 │
-├── scripts/                    # Utility scripts
-│   ├── start_tunnel.py         # localtunnel provisioner
-│   ├── trigger_deploy.py       # Render deploy hook trigger
-│   └── test_factory_startup.py # Startup test suite
+├── scripts/                    # 工具脚本
+│   ├── start_tunnel.py         # localtunnel 隧道
+│   ├── trigger_deploy.py       # Render 部署钩子触发
+│   ├── example_worker.py       # 示例工作进程
+│   └── test_factory_startup.py # 启动测试套件
 │
-├── agents/                     # AI Director orchestration
+├── agents/                     # AI 总监编排
 │   └── orchestrator.py
 │
-├── task_queue/                 # Task lifecycle
-│   ├── pending/
-│   ├── processing/
-│   └── completed/
+├── task_queue/                 # 任务生命周期
+│   ├── pending/                # 待处理任务
+│   ├── processing/             # 处理中任务
+│   └── completed/              # 已完成任务
 │
-├── logs/                       # Execution logs
-├── config/                     # Application configuration
-├── state/                      # Agent state persistence
-├── docs/                       # Documentation
-├── deliveries/                 # Task delivery artifacts
-├── analyst/                    # Strategic analysis
-├── radar/                      # Signal scanning
-└── warroom/                    # Report generation
+├── logs/                       # 执行日志
+├── config/                     # 应用配置
+├── state/                      # 代理状态持久化
+├── docs/                       # 文档
+│   ├── PROJECT_OVERVIEW.md     # 项目说明书
+│   └── WEB_ARCHITECTURE.md     # Web 前端架构文档
+├── deliveries/                 # 任务交付物
+├── analyst/                    # 战略分析
+├── radar/                      # 信号扫描
+└── warroom/                    # 报告生成
 ```
 
 ---
 
-# 🏁 Quick Start
+# 🏁 快速开始
 
-### Prerequisites
+### 前置条件
 
 - Python 3.12+
-- Node.js (for `npx localtunnel`)
-- GitHub account with `GITHUB_TOKEN` (gist + repo:issues scopes)
+- Node.js（用于 `npx localtunnel`）
+- GitHub 账号，需 `GITHUB_TOKEN`（gist + repo:issues 权限）
 
-### Setup
+### 设置
 
 ```bash
 git clone https://github.com/winsentrobot008/Maneki-AI.git
 cd Maneki-AI
 pip install -r requirements.txt
 cp .env.example .env
-# Edit .env with your GITHUB_TOKEN and MANEKI_TUNNEL_GIST_ID
+# 编辑 .env，填入 GITHUB_TOKEN 和 MANEKI_TUNNEL_GIST_ID
 ```
 
-### Start Factory
+### 启动工厂
 
 ```bash
 python start_factory.py
 ```
 
-Launches API Gateway (port 8000), Task Listener, and local tunnel.
+启动 API 网关（端口 8000）、任务监听器和本地隧道。
 
-### Run a Task Locally
+### 本地运行任务
 
 ```bash
 python run_task.py <task_name> --log
 ```
 
-Available tasks: `deploy`, `build`, `test`, `start`, `analyze`, `scan`, `report`, `orchestrate`, `bridge`, `worker`.
+可用任务：`deploy`、`build`、`test`、`start`、`analyze`、`scan`、`report`、`orchestrate`、`bridge`、`worker`
 
-### Open Dashboard
+### 打开仪表板
 
-Navigate to **[https://maneki-ai.onrender.com/](https://maneki-ai.onrender.com/)** to dispatch production orders.
+访问 **[https://maneki-ai.onrender.com/](https://maneki-ai.onrender.com/)** 调度生产订单。
 
 ---
 
-# 📋 Required Environment Variables
+# 📋 必需的环境变量
 
-| Variable | Required | Purpose |
-|----------|----------|---------|
-| `GITHUB_TOKEN` | ✅ **Yes** | GitHub PAT with `gist` and `repo:issues` scopes |
-| `MANEKI_TUNNEL_GIST_ID` | ✅ **Yes** | Private Gist ID for tunnel URL bulletin board |
-| `MANEKI_ENABLE_TUNNEL` | ❌ No | Set to `0` to disable tunnel (default: `1`) |
-| `MANEKI_TUNNEL_PORT` | ❌ No | Local port to tunnel (default: `8000`) |
-| `API_GATEWAY_URL` | ❌ No | Static fallback tunnel URL |
+| 变量 | 必需 | 用途 |
+|------|------|------|
+| `GITHUB_TOKEN` | ✅ **是** | GitHub PAT，需 `gist` 和 `repo:issues` 权限 |
+| `MANEKI_TUNNEL_GIST_ID` | ✅ **是** | 隧道 URL 公告板的私有 Gist ID |
+| `MANEKI_ENABLE_TUNNEL` | ❌ 否 | 设为 `0` 禁用隧道（默认：`1`） |
+| `MANEKI_TUNNEL_PORT` | ❌ 否 | 隧道本地端口（默认：`8000`） |
+| `API_GATEWAY_URL` | ❌ 否 | 静态回退隧道 URL |
 
 ---
 
 <p align="center">
-  <strong>Maneki-AI</strong> — The Autonomous Factory 🐱
+  <strong>Maneki-AI</strong> — 让业务在 24 小时的自动循环中持续生长 🐱
 </p>
 <p align="center">
-  <sub>v0.3.0-factory · Async AI Factory · GitHub-Driven Dispatch</sub>
+  <sub>v0.3.0-factory · Multi-Agent Factory · CrewAI Powered</sub>
 </p>
