@@ -8,3 +8,10 @@ venv/
 reports/*.html
 reports/*.json
 .DS_Store
+
+# Streamlit
+.streamlit/
+
+# IDE
+.vscode/
+.idea/
