@@ -812,5 +812,8 @@ def render_factory_trigger():
                 st.text_area('Execution Log:', value=result.stdout + result.stderr, height=300)
             except Exception as e:
                 st.error(f'Factory Error: {e}')
-
+# --- 注入工厂控制台 ---
+import factory_ui
+factory_ui.render_factory_trigger()
+# --------------------
 # �Զ�������Ⱦ�߼�
