@@ -120,19 +120,28 @@ def write_task_log(task_id, stdout, stderr, returncode):
     return log_path
 
 
-def write_status_report(task_id, returncode):
-    """Generate a structured status report JSON file."""
+def write_status_report(task_id, returncode, parameters=None):
+    """
+    Generate a structured status report JSON file.
+    Outputs the full Task Schema: task_id, status, parameters,
+    result_log, created_at, updated_at.
+    """
     status = "SUCCESS" if returncode == 0 else "FAILED"
+    now = timestamp()
     report = {
         "task_id": task_id,
         "status": status,
-        "timestamp": timestamp()
+        "parameters": parameters or {},
+        "result_log": os.path.join(LOGS_DIR, f"task_{task_id}_report.json"),
+        "created_at": now,
+        "updated_at": now,
     }
     report_path = os.path.join(LOGS_DIR, f"task_{task_id}_report.json")
     with open(report_path, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
     print(f"[task_listener] Status report written: {report_path}")
     return report_path
+
 
 
 def send_callback(task_id):

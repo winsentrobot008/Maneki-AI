@@ -2,8 +2,10 @@
 #
 # Deployed at: https://maneki-ai.onrender.com/
 #
-# This service runs the Streamlit-based web frontend.
-# The app.py entry point delegates to web/ui.py for the full UI.
+# The app.py is a Streamlit single-page application that provides:
+#   - Task Submission (POST /api/submit-task via internal API Gateway)
+#   - Task Dashboard (real-time status overview)
+#   - Report Viewer (dynamic execution log rendering)
 
 services:
   - type: web
@@ -18,3 +20,5 @@ services:
         value: 10
       - key: STREAMLIT_BROWSER_GATHER_USAGE_STATS
         value: "false"
+      - key: API_GATEWAY_URL
+        value: "http://localhost:8000"
