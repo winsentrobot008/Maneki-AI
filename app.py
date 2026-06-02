@@ -1,4 +1,4 @@
-﻿"""
+"""
 app.py — Maneki-AI 招财猫任务控制台 (Render Deployment Entry)
 
 A Streamlit single-page application deployed at https://maneki-ai.onrender.com/.
@@ -17,6 +17,8 @@ import sys
 import json
 import glob
 from datetime import datetime, timezone
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from threading import Thread
 from urllib.request import Request, urlopen
 from urllib.error import URLError
 
@@ -29,6 +31,14 @@ PROCESSING_DIR = os.path.join(PROJECT_ROOT, "task_queue", "processing")
 COMPLETED_DIR = os.path.join(PROJECT_ROOT, "task_queue", "completed")
 LOGS_DIR = os.path.join(PROJECT_ROOT, "logs")
 API_GATEWAY_URL = os.environ.get("API_GATEWAY_URL", "http://localhost:8000")
+
+# ── Dynamic Tunnel Gateway ────────────────────────────────────────────────
+# The tunnel gateway URL is reported by the local factory via a best-effort
+# POST to /api/config/tunnel-gateway.  It is stored in-memory and used to
+# route task submissions to the correct local gateway.  Falls back to the
+# static API_GATEWAY_URL env-var when no tunnel has been reported.
+_tunnel_gateway_url: str | None = None
+TUNNEL_GATEWAY_FILE = os.path.join(PROJECT_ROOT, "config", "tunnel_gateway.json")
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────
@@ -49,6 +59,119 @@ def _gateway_healthy() -> bool:
         return resp.status == 200
     except (URLError, OSError):
         return False
+
+
+# ── Tunnel Gateway Management ─────────────────────────────────────────────
+# The tunnel gateway URL is dynamically reported by the local factory and
+# persisted to a JSON file so it survives Render instance restarts.
+# When routing a new task, submit_task() uses this dynamic address if set,
+# falling back to the static API_GATEWAY_URL env-var.
+
+def _get_active_gateway_url() -> str:
+    """Return the tunnel gateway URL if reported, else the static env-var."""
+    global _tunnel_gateway_url
+    if _tunnel_gateway_url:
+        return _tunnel_gateway_url
+    # Try loading from persisted file on first call
+    if os.path.isfile(TUNNEL_GATEWAY_FILE):
+        try:
+            with open(TUNNEL_GATEWAY_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                url = data.get("tunnel_gateway_url", "")
+                if url:
+                    _tunnel_gateway_url = url
+                    return url
+        except (json.JSONDecodeError, IOError):
+            pass
+    return API_GATEWAY_URL
+
+
+def _set_tunnel_gateway_url(url: str) -> None:
+    """Store the tunnel gateway URL in memory and persist to disk."""
+    global _tunnel_gateway_url
+    _tunnel_gateway_url = url
+    os.makedirs(os.path.dirname(TUNNEL_GATEWAY_FILE), exist_ok=True)
+    try:
+        with open(TUNNEL_GATEWAY_FILE, "w", encoding="utf-8") as f:
+            json.dump({"tunnel_gateway_url": url, "updated_at": _now_iso()}, f)
+    except IOError:
+        pass  # best-effort persistence
+
+
+# ── Embedded Config HTTP Server ───────────────────────────────────────────
+# A lightweight background HTTP server that listens on a configurable port
+# (default 9999) for the local factory to POST the tunnel gateway URL.
+# This keeps the tunnel URL completely hidden from the Streamlit UI.
+
+CONFIG_SERVER_PORT = int(os.environ.get("MANEKI_CONFIG_PORT", "9999"))
+
+
+class ConfigHTTPHandler(BaseHTTPRequestHandler):
+    """Minimal HTTP handler that accepts tunnel gateway URL updates."""
+
+    def _send_json(self, status_code: int, data: dict) -> None:
+        body = json.dumps(data).encode("utf-8")
+        self.send_response(status_code)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _read_body(self) -> dict | None:
+        length = int(self.headers.get("Content-Length", 0))
+        if length == 0:
+            return None
+        try:
+            return json.loads(self.rfile.read(length).decode("utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return None
+
+    def do_POST(self) -> None:
+        if self.path == "/api/config/tunnel-gateway":
+            body = self._read_body()
+            if body and isinstance(body.get("tunnel_gateway_url"), str):
+                url = body["tunnel_gateway_url"].strip()
+                if url:
+                    _set_tunnel_gateway_url(url)
+                    print(f"[config-server] ✅ Tunnel gateway updated: {url}")
+                    self._send_json(200, {"status": "OK",
+                                          "message": "Tunnel gateway updated."})
+                    return
+            self._send_json(400, {"status": "ERROR",
+                                  "message": "Missing or invalid 'tunnel_gateway_url'."})
+        else:
+            self._send_json(404, {"status": "ERROR",
+                                  "message": f"Not found: {self.path}"})
+
+    def do_GET(self) -> None:
+        if self.path == "/api/config/tunnel-gateway":
+            self._send_json(200, {
+                "tunnel_gateway_url": _get_active_gateway_url(),
+                "updated_at": _now_iso(),
+            })
+        else:
+            self._send_json(404, {"status": "ERROR",
+                                  "message": f"Not found: {self.path}"})
+
+    def log_message(self, fmt, *args) -> None:
+        sys.stderr.write(f"[config-server] {args[0]} {args[1]} {args[2]}\n")
+
+
+def _start_config_server() -> None:
+    """Start the config HTTP server in a background daemon thread."""
+    server = HTTPServer(("0.0.0.0", CONFIG_SERVER_PORT), ConfigHTTPHandler)
+    print(f"[config-server] Listening on http://0.0.0.0:{CONFIG_SERVER_PORT}")
+    print(f"[config-server] POST /api/config/tunnel-gateway — update tunnel URL")
+    print(f"[config-server] GET  /api/config/tunnel-gateway — query tunnel URL")
+    try:
+        server.serve_forever()
+    except Exception:
+        pass
+
+
+# Start the config server in background when module loads
+_config_thread = Thread(target=_start_config_server, daemon=True)
+_config_thread.start()
 
 
 # ── Data Store Interface ───────────────────────────────────────────────────
@@ -91,10 +214,12 @@ def submit_task(task_id: str, script_name: str, extra_params: dict = None) -> di
         return {"success": False, "task_id": task_id, "status": "ERROR",
                 "message": f"Failed to write task file: {e}"}
 
-    # Best-effort POST to API Gateway
+    # Best-effort POST to the active gateway (tunnel URL if reported,
+    # otherwise the static API_GATEWAY_URL env-var).
+    active_gateway = _get_active_gateway_url()
     try:
         data = json.dumps(payload).encode("utf-8")
-        req = Request(f"{API_GATEWAY_URL}/api/task", data=data,
+        req = Request(f"{active_gateway}/api/task", data=data,
                       headers={"Content-Type": "application/json"}, method="POST")
         urlopen(req, timeout=5)
     except (URLError, OSError):

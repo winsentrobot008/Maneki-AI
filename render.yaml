@@ -22,3 +22,7 @@ services:
         value: "false"
       - key: API_GATEWAY_URL
         value: "http://localhost:8000"
+      - key: MANEKI_CONFIG_PORT
+        value: "9999"
+      - key: MANEKI_RENDER_APP_URL
+        value: "https://maneki-ai.onrender.com"
