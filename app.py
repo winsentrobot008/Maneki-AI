@@ -10,6 +10,12 @@ Provides:
 
 Data is stored as lightweight JSON files in task_queue/ and logs/.
 No external database required.
+
+Tunnel Discovery:
+  The local factory publishes its active localtunnel URL to a private GitHub
+  Gist (the "cloud bulletin board").  When submit_task() runs, it fetches the
+  tunnel URL from this Gist and routes the task submission through the tunnel
+  to the local API gateway — bypassing Render's single-port limitation.
 """
 
 import os
@@ -17,8 +23,6 @@ import sys
 import json
 import glob
 from datetime import datetime, timezone
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from threading import Thread
 from urllib.request import Request, urlopen
 from urllib.error import URLError
 
@@ -32,13 +36,18 @@ COMPLETED_DIR = os.path.join(PROJECT_ROOT, "task_queue", "completed")
 LOGS_DIR = os.path.join(PROJECT_ROOT, "logs")
 API_GATEWAY_URL = os.environ.get("API_GATEWAY_URL", "http://localhost:8000")
 
-# ── Dynamic Tunnel Gateway ────────────────────────────────────────────────
-# The tunnel gateway URL is reported by the local factory via a best-effort
-# POST to /api/config/tunnel-gateway.  It is stored in-memory and used to
-# route task submissions to the correct local gateway.  Falls back to the
-# static API_GATEWAY_URL env-var when no tunnel has been reported.
+# ── Cloud Bulletin Board (GitHub Gist) ─────────────────────────────────────
+# The tunnel URL is published to a private GitHub Gist by the local factory.
+# We fetch it dynamically when routing task submissions, falling back to the
+# static API_GATEWAY_URL env-var if the Gist is unreachable or unset.
+
+GIST_API_BASE = "https://api.github.com/gists"
+GIST_FILENAME = "maneki_tunnel_url.json"
+GIST_ID = os.environ.get("MANEKI_TUNNEL_GIST_ID", "")
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
+
+# In-memory cache for the tunnel URL (refreshed on each submit_task call)
 _tunnel_gateway_url: str | None = None
-TUNNEL_GATEWAY_FILE = os.path.join(PROJECT_ROOT, "config", "tunnel_gateway.json")
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────
@@ -61,117 +70,71 @@ def _gateway_healthy() -> bool:
         return False
 
 
-# ── Tunnel Gateway Management ─────────────────────────────────────────────
-# The tunnel gateway URL is dynamically reported by the local factory and
-# persisted to a JSON file so it survives Render instance restarts.
-# When routing a new task, submit_task() uses this dynamic address if set,
-# falling back to the static API_GATEWAY_URL env-var.
+# ── Tunnel Gateway Discovery (GitHub Gist) ─────────────────────────────────
+# Instead of an embedded HTTP server on a secondary port (which Render blocks),
+# we use a private GitHub Gist as a lightweight cloud "bulletin board".
+# The local factory writes the tunnel URL to the Gist; we read it here.
+
+def _fetch_tunnel_url_from_gist() -> str | None:
+    """
+    Fetch the active tunnel URL from the GitHub Gist bulletin board.
+
+    Returns the tunnel URL string, or None if the Gist is unreachable,
+    unconfigured, or contains no valid URL.
+    """
+    if not GIST_ID:
+        return None
+
+    url = f"{GIST_API_BASE}/{GIST_ID}"
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "Maneki-AI/1.0",
+    }
+    if GITHUB_TOKEN:
+        headers["Authorization"] = f"Bearer {GITHUB_TOKEN}"
+
+    try:
+        req = Request(url, headers=headers, method="GET")
+        resp = urlopen(req, timeout=10)
+        resp_data = json.loads(resp.read().decode("utf-8"))
+        resp.close()
+
+        files = resp_data.get("files", {})
+        gist_file = files.get(GIST_FILENAME, {})
+        content = gist_file.get("content", "")
+
+        if content:
+            data = json.loads(content)
+            tunnel_url = data.get("tunnel_url", "")
+            if tunnel_url:
+                return tunnel_url
+    except (URLError, json.JSONDecodeError, OSError) as e:
+        print(f"[app] ⚠️  Failed to fetch tunnel URL from Gist: {e}", file=sys.stderr)
+
+    return None
+
 
 def _get_active_gateway_url() -> str:
-    """Return the tunnel gateway URL if reported, else the static env-var."""
+    """
+    Return the tunnel gateway URL if available, else the static env-var.
+
+    The tunnel URL is fetched from the GitHub Gist bulletin board on every
+    call, ensuring we always use the most recently published tunnel address.
+    """
     global _tunnel_gateway_url
+
+    # Try fetching from Gist first
+    gist_url = _fetch_tunnel_url_from_gist()
+    if gist_url:
+        _tunnel_gateway_url = gist_url
+        return gist_url
+
+    # Fall back to in-memory cache (from a previous successful fetch)
     if _tunnel_gateway_url:
         return _tunnel_gateway_url
-    # Try loading from persisted file on first call
-    if os.path.isfile(TUNNEL_GATEWAY_FILE):
-        try:
-            with open(TUNNEL_GATEWAY_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                url = data.get("tunnel_gateway_url", "")
-                if url:
-                    _tunnel_gateway_url = url
-                    return url
-        except (json.JSONDecodeError, IOError):
-            pass
+
+    # Final fallback: static env-var
     return API_GATEWAY_URL
-
-
-def _set_tunnel_gateway_url(url: str) -> None:
-    """Store the tunnel gateway URL in memory and persist to disk."""
-    global _tunnel_gateway_url
-    _tunnel_gateway_url = url
-    os.makedirs(os.path.dirname(TUNNEL_GATEWAY_FILE), exist_ok=True)
-    try:
-        with open(TUNNEL_GATEWAY_FILE, "w", encoding="utf-8") as f:
-            json.dump({"tunnel_gateway_url": url, "updated_at": _now_iso()}, f)
-    except IOError:
-        pass  # best-effort persistence
-
-
-# ── Embedded Config HTTP Server ───────────────────────────────────────────
-# A lightweight background HTTP server that listens on a configurable port
-# (default 9999) for the local factory to POST the tunnel gateway URL.
-# This keeps the tunnel URL completely hidden from the Streamlit UI.
-
-CONFIG_SERVER_PORT = int(os.environ.get("MANEKI_CONFIG_PORT", "9999"))
-
-
-class ConfigHTTPHandler(BaseHTTPRequestHandler):
-    """Minimal HTTP handler that accepts tunnel gateway URL updates."""
-
-    def _send_json(self, status_code: int, data: dict) -> None:
-        body = json.dumps(data).encode("utf-8")
-        self.send_response(status_code)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
-
-    def _read_body(self) -> dict | None:
-        length = int(self.headers.get("Content-Length", 0))
-        if length == 0:
-            return None
-        try:
-            return json.loads(self.rfile.read(length).decode("utf-8"))
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            return None
-
-    def do_POST(self) -> None:
-        if self.path == "/api/config/tunnel-gateway":
-            body = self._read_body()
-            if body and isinstance(body.get("tunnel_gateway_url"), str):
-                url = body["tunnel_gateway_url"].strip()
-                if url:
-                    _set_tunnel_gateway_url(url)
-                    print(f"[config-server] ✅ Tunnel gateway updated: {url}")
-                    self._send_json(200, {"status": "OK",
-                                          "message": "Tunnel gateway updated."})
-                    return
-            self._send_json(400, {"status": "ERROR",
-                                  "message": "Missing or invalid 'tunnel_gateway_url'."})
-        else:
-            self._send_json(404, {"status": "ERROR",
-                                  "message": f"Not found: {self.path}"})
-
-    def do_GET(self) -> None:
-        if self.path == "/api/config/tunnel-gateway":
-            self._send_json(200, {
-                "tunnel_gateway_url": _get_active_gateway_url(),
-                "updated_at": _now_iso(),
-            })
-        else:
-            self._send_json(404, {"status": "ERROR",
-                                  "message": f"Not found: {self.path}"})
-
-    def log_message(self, fmt, *args) -> None:
-        sys.stderr.write(f"[config-server] {args[0]} {args[1]} {args[2]}\n")
-
-
-def _start_config_server() -> None:
-    """Start the config HTTP server in a background daemon thread."""
-    server = HTTPServer(("0.0.0.0", CONFIG_SERVER_PORT), ConfigHTTPHandler)
-    print(f"[config-server] Listening on http://0.0.0.0:{CONFIG_SERVER_PORT}")
-    print(f"[config-server] POST /api/config/tunnel-gateway — update tunnel URL")
-    print(f"[config-server] GET  /api/config/tunnel-gateway — query tunnel URL")
-    try:
-        server.serve_forever()
-    except Exception:
-        pass
-
-
-# Start the config server in background when module loads
-_config_thread = Thread(target=_start_config_server, daemon=True)
-_config_thread.start()
 
 
 # ── Data Store Interface ───────────────────────────────────────────────────
@@ -189,7 +152,7 @@ _config_thread.start()
 def submit_task(task_id: str, script_name: str, extra_params: dict = None) -> dict:
     """
     Submit a new task. Writes to task_queue/pending/ with status PENDING
-    and best-effort POST to the API Gateway.
+    and best-effort POST to the API Gateway via the tunnel.
     """
     _ensure_dirs()
     now = _now_iso()
@@ -214,8 +177,8 @@ def submit_task(task_id: str, script_name: str, extra_params: dict = None) -> di
         return {"success": False, "task_id": task_id, "status": "ERROR",
                 "message": f"Failed to write task file: {e}"}
 
-    # Best-effort POST to the active gateway (tunnel URL if reported,
-    # otherwise the static API_GATEWAY_URL env-var).
+    # Best-effort POST to the active gateway (tunnel URL from Gist if
+    # available, otherwise the static API_GATEWAY_URL env-var).
     active_gateway = _get_active_gateway_url()
     try:
         data = json.dumps(payload).encode("utf-8")

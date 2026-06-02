@@ -5,6 +5,10 @@ start_factory.py — Maneki-AI Smart Factory Orchestrator (Phase 4)
 Launches the API Gateway, Task Listener, and an optional local tunnel
 for secure public HTTPS access to the local factory.
 Handles graceful shutdown on Ctrl+C.
+
+The tunnel URL is published to a GitHub Gist (cloud "bulletin board")
+so the Render-hosted app can dynamically discover it — bypassing
+Render's single-port limitation.
 """
 
 import json
@@ -28,43 +32,91 @@ TUNNEL_PORT = int(os.environ.get("MANEKI_TUNNEL_PORT", "8000"))
 TUNNEL_SUBDOMAIN = os.environ.get("MANEKI_TUNNEL_SUBDOMAIN", None)
 
 
-# ── Render Tunnel Gateway Registration ──────────────────────────────────
-# The tunnel URL is automatically reported to the Render-hosted app so it
-# can dynamically route task submissions to the local factory gateway.
-# This is a best-effort, fire-and-forget call — failures are logged but
-# never block the factory startup.
+# ── Cloud Bulletin Board (GitHub Gist) ─────────────────────────────────────
+# The tunnel URL is published to a private GitHub Gist so the Render-hosted
+# app can dynamically discover it.  This bypasses Render's single-port
+# limitation without requiring any external middleware service.
 
-RENDER_APP_URL = os.environ.get(
-    "MANEKI_RENDER_APP_URL",
-    "https://maneki-ai.onrender.com"
-)
-TUNNEL_REPORT_ENDPOINT = "/api/config/tunnel-gateway"
+GIST_API_BASE = "https://api.github.com/gists"
+GIST_FILENAME = "maneki_tunnel_url.json"
+GIST_DESCRIPTION = "Maneki-AI active tunnel URL (auto-updated by local factory)"
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
+GIST_ID = os.environ.get("MANEKI_TUNNEL_GIST_ID", "")
 
 
-def report_tunnel_url_to_render(tunnel_url: str) -> None:
+def _gist_headers() -> dict:
+    """Return HTTP headers for GitHub Gist API calls."""
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "Maneki-AI/1.0",
+    }
+    if GITHUB_TOKEN:
+        headers["Authorization"] = f"Bearer {GITHUB_TOKEN}"
+    return headers
+
+
+def _gist_payload(tunnel_url: str) -> bytes:
+    """Build the JSON payload for creating/updating a Gist."""
+    content = json.dumps({
+        "tunnel_url": tunnel_url,
+        "updated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }, indent=2)
+    payload = {
+        "description": GIST_DESCRIPTION,
+        "public": False,
+        "files": {
+            GIST_FILENAME: {
+                "content": content,
+            }
+        },
+    }
+    return json.dumps(payload).encode("utf-8")
+
+
+def publish_tunnel_url_to_gist(tunnel_url: str) -> str | None:
     """
-    Best-effort POST of the acquired tunnel URL to the Render-hosted app.
+    Publish the tunnel URL to a GitHub Gist (create or update).
 
-    The Render app stores this address and uses it to route task submissions
-    to the local factory gateway.  This call is fire-and-forget: any network
-    or HTTP error is silently logged and never raises.
+    Returns the Gist ID on success, or None on failure.
+    This is a best-effort operation — failures are logged but never raise.
     """
-    endpoint = f"{RENDER_APP_URL.rstrip('/')}{TUNNEL_REPORT_ENDPOINT}"
-    payload = json.dumps({"tunnel_gateway_url": tunnel_url}).encode("utf-8")
+    global GIST_ID
+
+    if not GITHUB_TOKEN:
+        print("[start_factory] ⚠️  GITHUB_TOKEN not set; skipping Gist publish.")
+        return None
+
+    payload = _gist_payload(tunnel_url)
+
     try:
-        req = Request(
-            endpoint,
-            data=payload,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        resp = urlopen(req, timeout=10)
-        print(f"[start_factory] ✅ Tunnel gateway reported to Render — HTTP {resp.status}")
+        if GIST_ID:
+            # Update existing gist
+            url = f"{GIST_API_BASE}/{GIST_ID}"
+            req = Request(url, data=payload, headers=_gist_headers(), method="PATCH")
+        else:
+            # Create new gist
+            req = Request(GIST_API_BASE, data=payload, headers=_gist_headers(), method="POST")
+
+        resp = urlopen(req, timeout=15)
+        resp_data = json.loads(resp.read().decode("utf-8"))
         resp.close()
+
+        gist_id = resp_data.get("id", GIST_ID)
+        if not GIST_ID:
+            GIST_ID = gist_id
+            print(f"[start_factory] ✅ Created new tunnel Gist: {resp_data.get('html_url', 'N/A')}")
+            print(f"[start_factory] 💡 Set MANEKI_TUNNEL_GIST_ID={gist_id} to reuse this gist.")
+        else:
+            print(f"[start_factory] ✅ Tunnel URL updated in Gist {GIST_ID} — HTTP {resp.status}")
+
+        return gist_id
+
     except URLError as e:
-        print(f"[start_factory] ⚠️  Render unreachable ({e.reason}); tunnel still active.")
+        print(f"[start_factory] ⚠️  Gist API unreachable ({e.reason}); tunnel still active.")
     except Exception as e:
-        print(f"[start_factory] ⚠️  Failed to report tunnel URL to Render: {e}")
+        print(f"[start_factory] ⚠️  Failed to publish tunnel URL to Gist: {e}")
+
+    return None
 
 
 def print_banner(tunnel_url=None):
@@ -192,8 +244,8 @@ def start_factory():
 
             if tunnel_url:
                 print(f"[start_factory] ✅ Tunnel established: {tunnel_url}")
-                # Automatically report the tunnel URL to Render (best-effort)
-                report_tunnel_url_to_render(tunnel_url)
+                # Publish the tunnel URL to the cloud bulletin board (GitHub Gist)
+                publish_tunnel_url_to_gist(tunnel_url)
             else:
                 print("[start_factory] ⚠️  Tunnel URL not detected (tunnel may still work).",
                       file=sys.stderr)

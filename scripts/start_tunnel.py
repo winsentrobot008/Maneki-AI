@@ -3,13 +3,15 @@
 start_tunnel.py — Maneki-AI Local Tunnel Provisioner
 
 Provisions a public HTTPS URL for a local port using localtunnel (via npx).
-Captures the generated URL and prints it clearly for the user.
+Captures the generated URL and publishes it to a cloud "bulletin board"
+(GitHub Gist) so the Render-hosted app can dynamically discover the tunnel.
 
 Usage:
     python scripts/start_tunnel.py [--port PORT] [--subdomain SUBDOMAIN]
 
 Dependencies:
     - Node.js / npx (localtunnel is fetched on-the-fly, no install needed)
+    - GITHUB_TOKEN environment variable (for Gist API authentication)
 """
 
 import argparse
@@ -22,6 +24,98 @@ import time
 from urllib.request import Request, urlopen
 from urllib.error import URLError
 
+
+# ── Cloud Bulletin Board (GitHub Gist) ─────────────────────────────────────
+# The tunnel URL is published to a private GitHub Gist so the Render-hosted
+# app can dynamically discover it.  This bypasses Render's single-port
+# limitation without requiring any external middleware service.
+#
+# Gist ID:  If the gist already exists, set MANEKI_TUNNEL_GIST_ID to reuse it.
+#           Otherwise, a new gist is created on first publish.
+
+GIST_API_BASE = "https://api.github.com/gists"
+GIST_FILENAME = "maneki_tunnel_url.json"
+GIST_DESCRIPTION = "Maneki-AI active tunnel URL (auto-updated by local factory)"
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
+GIST_ID = os.environ.get("MANEKI_TUNNEL_GIST_ID", "")
+
+
+def _gist_headers() -> dict:
+    """Return HTTP headers for GitHub Gist API calls."""
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "Maneki-AI/1.0",
+    }
+    if GITHUB_TOKEN:
+        headers["Authorization"] = f"Bearer {GITHUB_TOKEN}"
+    return headers
+
+
+def _gist_payload(tunnel_url: str) -> bytes:
+    """Build the JSON payload for creating/updating a Gist."""
+    content = json.dumps({
+        "tunnel_url": tunnel_url,
+        "updated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }, indent=2)
+    payload = {
+        "description": GIST_DESCRIPTION,
+        "public": False,
+        "files": {
+            GIST_FILENAME: {
+                "content": content,
+            }
+        },
+    }
+    return json.dumps(payload).encode("utf-8")
+
+
+def publish_tunnel_url_to_gist(tunnel_url: str) -> str | None:
+    """
+    Publish the tunnel URL to a GitHub Gist (create or update).
+
+    Returns the Gist ID on success, or None on failure.
+    This is a best-effort operation — failures are logged but never raise.
+    """
+    global GIST_ID
+
+    if not GITHUB_TOKEN:
+        print("[tunnel] ⚠️  GITHUB_TOKEN not set; skipping Gist publish.")
+        return None
+
+    payload = _gist_payload(tunnel_url)
+
+    try:
+        if GIST_ID:
+            # Update existing gist
+            url = f"{GIST_API_BASE}/{GIST_ID}"
+            req = Request(url, data=payload, headers=_gist_headers(), method="PATCH")
+        else:
+            # Create new gist
+            req = Request(GIST_API_BASE, data=payload, headers=_gist_headers(), method="POST")
+
+        resp = urlopen(req, timeout=15)
+        resp_data = json.loads(resp.read().decode("utf-8"))
+        resp.close()
+
+        gist_id = resp_data.get("id", GIST_ID)
+        if not GIST_ID:
+            GIST_ID = gist_id
+            print(f"[tunnel] ✅ Created new tunnel Gist: {resp_data.get('html_url', 'N/A')}")
+            print(f"[tunnel] 💡 Set MANEKI_TUNNEL_GIST_ID={gist_id} to reuse this gist.")
+        else:
+            print(f"[tunnel] ✅ Tunnel URL updated in Gist {GIST_ID} — HTTP {resp.status}")
+
+        return gist_id
+
+    except URLError as e:
+        print(f"[tunnel] ⚠️  Gist API unreachable ({e.reason}); tunnel still active.")
+    except Exception as e:
+        print(f"[tunnel] ⚠️  Failed to publish tunnel URL to Gist: {e}")
+
+    return None
+
+
+# ── Local Tunnel Management ────────────────────────────────────────────────
 
 def build_npx_command(port: int, subdomain: str | None = None,
                       print_requests: bool = False) -> str:
@@ -126,45 +220,6 @@ def wait_for_url(proc: subprocess.Popen, timeout: int = 15) -> str | None:
     return None
 
 
-# ── Render Tunnel Gateway Registration ──────────────────────────────────
-# The tunnel URL is automatically reported to the Render-hosted app so it
-# can dynamically route task submissions to the local factory gateway.
-# This is a best-effort, fire-and-forget call — failures are logged but
-# never block the tunnel lifecycle.
-
-RENDER_APP_URL = os.environ.get(
-    "MANEKI_RENDER_APP_URL",
-    "https://maneki-ai.onrender.com"
-)
-TUNNEL_REPORT_ENDPOINT = "/api/config/tunnel-gateway"
-
-
-def report_tunnel_url_to_render(tunnel_url: str) -> None:
-    """
-    Best-effort POST of the acquired tunnel URL to the Render-hosted app.
-
-    The Render app stores this address and uses it to route task submissions
-    to the local factory gateway.  This call is fire-and-forget: any network
-    or HTTP error is silently logged and never raises.
-    """
-    endpoint = f"{RENDER_APP_URL.rstrip('/')}{TUNNEL_REPORT_ENDPOINT}"
-    payload = json.dumps({"tunnel_gateway_url": tunnel_url}).encode("utf-8")
-    try:
-        req = Request(
-            endpoint,
-            data=payload,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        resp = urlopen(req, timeout=10)
-        print(f"[tunnel] ✅ Tunnel gateway reported to Render — HTTP {resp.status}")
-        resp.close()
-    except URLError as e:
-        print(f"[tunnel] ⚠️  Render unreachable ({e.reason}); tunnel still active.")
-    except Exception as e:
-        print(f"[tunnel] ⚠️  Failed to report tunnel URL to Render: {e}")
-
-
 def main():
     parser = argparse.ArgumentParser(
         description="Maneki-AI Local Tunnel — Expose localhost via public HTTPS URL"
@@ -197,8 +252,8 @@ def main():
     url = wait_for_url(proc, timeout=args.timeout)
 
     if url:
-        # Automatically report the tunnel URL to Render (best-effort)
-        report_tunnel_url_to_render(url)
+        # Publish the tunnel URL to the cloud bulletin board (GitHub Gist)
+        publish_tunnel_url_to_gist(url)
 
         print()
         print("=" * 60)
