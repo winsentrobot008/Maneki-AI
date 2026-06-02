@@ -19,16 +19,30 @@
 
 # 📋 Table of Contents
 
-1. [Architecture Overview](#-architecture-overview)
-2. [Core Engine Components](#-core-engine-components)
-3. [Strategic Integration](#-strategic-integration)
-4. [Current Workflow](#-current-workflow)
-5. [Factory Integration Architecture](#-factory-integration-architecture)
-6. [AI Orchestration Strategy](#-ai-orchestration-strategy)
-7. [Extension Modules](#-extension-modules)
-8. [Project Structure](#-project-structure)
-9. [Quick Start](#-quick-start)
-10. [Required Environment Variables](#-required-environment-variables)
+1. [Core Business Capabilities](#-core-business-capabilities)
+2. [Architecture Overview](#-architecture-overview)
+3. [Core Engine Components](#-core-engine-components)
+4. [Strategic Integration](#-strategic-integration)
+5. [Current Workflow](#-current-workflow)
+6. [Factory Integration Architecture](#-factory-integration-architecture)
+7. [AI Orchestration Strategy](#-ai-orchestration-strategy)
+8. [Extension Modules](#-extension-modules)
+9. [Project Structure](#-project-structure)
+10. [Quick Start](#-quick-start)
+11. [Required Environment Variables](#-required-environment-variables)
+
+---
+
+# 🚀 Core Business Capabilities
+
+Maneki-AI Factory is designed for high-autonomy business processes. Our primary capability is the **"Autonomous Content Pipeline"**:
+
+- **Intelligence Scout (Agent-S)**: Scans external platforms (e.g., YouTube) for 3-month high-performance trends.
+- **Pattern Extraction (ECC + Codex)**: Analyzes "viral hooks" and structural paradigms from successful content.
+- **Auto-Production (OpenClaw)**: Executes the generation pipeline, from scriptwriting to asset deployment.
+- **Continuous Reporting**: Automatically summarizes daily progress, KPI metrics, and revenue status into your central Task Dispatcher.
+
+This pipeline operates as a modular **"set-and-forget"** system, allowing you to scale from a single video to a full media matrix.
 
 ---
 
