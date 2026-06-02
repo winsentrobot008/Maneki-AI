@@ -21,6 +21,18 @@ import time
 from urllib.request import Request, urlopen
 from urllib.error import URLError
 
+# Load .env file from project root (if present)
+try:
+    from dotenv import load_dotenv
+    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    if os.path.isfile(env_path):
+        load_dotenv(env_path)
+        print(f"[start_factory] ✅ Loaded environment from {env_path}")
+except ImportError:
+    print("[start_factory] ⚠️  python-dotenv not installed; skipping .env load.")
+except Exception as e:
+    print(f"[start_factory] ⚠️  Could not load .env: {e}")
+
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 API_GATEWAY_SCRIPT = os.path.join(PROJECT_ROOT, "core", "api_gateway.py")
 TASK_LISTENER_SCRIPT = os.path.join(PROJECT_ROOT, "core", "task_listener.py")
@@ -280,12 +292,20 @@ def start_factory():
 
 
 def cleanup(processes):
-    """Gracefully terminate all subprocesses."""
+    """
+    Gracefully terminate all subprocesses using strict PID-based killing.
+
+    ⚠️  CRITICAL — NEVER use `taskkill /F /IM node.exe` or any image-name
+        based termination.  On Windows, that would kill the VS Code extension
+        host / Cline Node engine itself, causing the agent to disconnect
+        (the "friendly fire" bug).  Always target the specific PID returned
+        by subprocess.Popen.
+    """
     for name, proc in processes:
         if proc.poll() is None:
             print(f"[start_factory] Stopping {name} (PID {proc.pid})...")
             if sys.platform == "win32":
-                # On Windows, use taskkill to terminate the process tree
+                # PID-based process tree termination — safe, no friendly fire
                 subprocess.run(
                     ["taskkill", "/F", "/T", "/PID", str(proc.pid)],
                     stdout=subprocess.DEVNULL,

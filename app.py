@@ -192,6 +192,67 @@ def submit_task(task_id: str, script_name: str, extra_params: dict = None) -> di
             "message": f"Task {task_id} submitted. Status set to PENDING."}
 
 
+# ── Command & Control Mission Dispatch ────────────────────────────────────
+# Wires the C&C Center UI inputs into the task submission pipeline.
+# Harvests user_demand, ai_director, coder_count, and coder_roles from the
+# UI, bundles them into a structured payload, and dispatches it through the
+# tunnel gateway to the local factory.
+
+def submit_team_mission(
+    user_demand: str,
+    ai_director: str,
+    coder_count: int,
+    coder_roles: list[str],
+) -> dict:
+    """
+    Dispatch a team mission from the Command & Control Center.
+
+    Builds a task payload with the C&C inputs, writes it to the pending
+    queue, and best-effort POSTs it to the active factory gateway via the
+    tunnel (discovered dynamically from the GitHub Gist bulletin board).
+    """
+    _ensure_dirs()
+    now = _now_iso()
+    task_id = f"MISSION_{_now_iso()[:10].replace('-','')}_{datetime.now(timezone.utc).strftime('%H%M%S')}"
+
+    payload = {
+        "task_id": task_id,
+        "status": "PENDING",
+        "parameters": {
+            "script_name": "agents/orchestrator.py",
+            "user_demand": user_demand,
+            "ai_director": ai_director,
+            "coder_count": coder_count,
+            "coder_roles": coder_roles,
+        },
+        "result_log": None,
+        "created_at": now,
+        "updated_at": now,
+    }
+
+    # Write to pending queue
+    pending_path = os.path.join(PENDING_DIR, f"task_{task_id}.json")
+    try:
+        with open(pending_path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2)
+    except IOError as e:
+        return {"success": False, "task_id": task_id, "status": "ERROR",
+                "message": f"Failed to write mission file: {e}"}
+
+    # Best-effort POST to the active gateway via tunnel discovery
+    active_gateway = _get_active_gateway_url()
+    try:
+        data = json.dumps(payload).encode("utf-8")
+        req = Request(f"{active_gateway}/api/task", data=data,
+                      headers={"Content-Type": "application/json"}, method="POST")
+        urlopen(req, timeout=5)
+    except (URLError, OSError):
+        pass
+
+    return {"success": True, "task_id": task_id, "status": "PENDING",
+            "message": f"Mission {task_id} dispatched to factory."}
+
+
 def list_all_tasks() -> list[dict]:
     """Aggregate all tasks from all queues and logs."""
     _ensure_dirs()
@@ -247,6 +308,121 @@ def read_task_log(task_id: str) -> str | None:
             return f.read()
     except IOError:
         return None
+
+
+# ── Page: Command & Control Center ─────────────────────────────────────────
+# Phase 5 UI — Frontend-only input controls. Backend orchestration wiring
+# will be added in a subsequent step.
+
+def page_command_center():
+    st.header("🎮 Command & Control Center")
+    st.markdown("配置并启动 AI 编码团队，执行你的开发需求。")
+
+    # ── User Demand ────────────────────────────────────────────────────────
+    user_demand = st.text_area(
+        "📝 用户需求 (User Demand)",
+        value="",
+        height=150,
+        placeholder="描述你想要实现的功能或修复的问题…",
+        help="输入自然语言描述的需求，AI 团队将据此生成代码。",
+    )
+
+    st.divider()
+
+    # ── AI Director Selection ──────────────────────────────────────────────
+    col_left, col_right = st.columns(2)
+
+    with col_left:
+        ai_director = st.selectbox(
+            "🧠 AI 主管 (AI Director)",
+            options=[
+                "Claude 3.5 Sonnet (default)",
+                "Claude 4 Opus",
+                "GPT-4o",
+                "Gemini 2.5 Pro",
+                "DeepSeek-V3",
+            ],
+            index=0,
+            help="选择负责拆解需求、分配任务、审查代码的 AI 主管模型。",
+        )
+
+    with col_right:
+        coder_quantity = st.slider(
+            "👨‍💻 编码员数量 (Coder Quantity)",
+            min_value=1,
+            max_value=10,
+            value=3,
+            step=1,
+            help="并行工作的 AI 编码员数量。数量越多，任务并行度越高。",
+        )
+
+    st.divider()
+
+    # ── Coder Roles (Multi-Select) ─────────────────────────────────────────
+    coder_roles = st.multiselect(
+        "🛠️ 编码员角色 (Coder Roles)",
+        options=[
+            "Frontend Developer",
+            "Backend Developer",
+            "Full-Stack Developer",
+            "DevOps Engineer",
+            "Data Engineer",
+            "Security Engineer",
+            "QA / Test Engineer",
+            "UI/UX Designer",
+        ],
+        default=["Frontend Developer", "Backend Developer"],
+        help="选择编码员的专业角色。每个角色将专注于其擅长的领域。",
+    )
+
+    # ── Launch Team Button (wired to factory dispatch) ─────────────────────
+    st.divider()
+    launch_col1, launch_col2 = st.columns([3, 1])
+    with launch_col2:
+        launch_disabled = not (user_demand.strip() and coder_roles)
+        launch_clicked = st.button(
+            "🚀 启动团队",
+            type="primary",
+            use_container_width=True,
+            disabled=launch_disabled,
+            help="将当前配置打包为任务，通过隧道发送到本地工厂执行。",
+        )
+
+    # Handle launch — harvest all UI inputs and dispatch
+    if launch_clicked:
+        with st.spinner("正在编排 AI 团队并发送任务到工厂..."):
+            result = submit_team_mission(
+                user_demand=user_demand.strip(),
+                ai_director=ai_director,
+                coder_count=coder_quantity,
+                coder_roles=coder_roles,
+            )
+
+        if result["success"]:
+            st.success(f"✅ **{result['message']}**")
+            st.info(f"任务 **{result['task_id']}** 已写入待处理队列，"
+                    f"状态: **{result['status']}**。工厂将通过隧道接收并执行。")
+            # Show the dispatched payload for transparency
+            with st.expander("📦 已发送的任务载荷", expanded=True):
+                st.json({
+                    "task_id": result["task_id"],
+                    "user_demand": user_demand.strip(),
+                    "ai_director": ai_director,
+                    "coder_count": coder_quantity,
+                    "coder_roles": coder_roles,
+                })
+        else:
+            st.error(f"❌ 调度失败: {result['message']}")
+
+    # Preview panel (read-only summary of current config)
+    with st.expander("📋 当前配置预览", expanded=False):
+        preview = {
+            "需求摘要": user_demand[:80] + "..." if len(user_demand) > 80 else user_demand,
+            "AI 主管": ai_director,
+            "编码员数量": coder_quantity,
+            "编码员角色": coder_roles,
+        }
+        st.json(preview)
 
 
 # ── Page: Submit Task ──────────────────────────────────────────────────────
@@ -431,7 +607,8 @@ def main():
         st.markdown("## 🐱 Maneki-AI")
         st.markdown("**招财猫任务工厂**")
         st.divider()
-        page = st.radio("导航", ["📋 提交任务", "📊 任务看板", "📄 执行报告"],
+        page = st.radio("导航", ["🎮 Command & Control Center",
+                                 "📋 提交任务", "📊 任务看板", "📄 执行报告"],
                         label_visibility="collapsed")
         st.divider()
         st.caption("系统状态")
@@ -446,7 +623,9 @@ def main():
         st.session_state["nav_page"] = None
 
     # Route to page
-    if page == "📋 提交任务":
+    if page == "🎮 Command & Control Center":
+        page_command_center()
+    elif page == "📋 提交任务":
         page_submit_task()
     elif page == "📊 任务看板":
         page_task_dashboard()

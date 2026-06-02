@@ -280,7 +280,7 @@ def main():
             print("\n[tunnel] Tunnel shutdown requested.")
     else:
         print("[tunnel] Failed to establish tunnel.", file=sys.stderr)
-        # Kill the orphaned process
+        # Kill the orphaned process (PID-based — NEVER use /IM node.exe)
         if proc.poll() is None:
             proc.terminate()
             try:
