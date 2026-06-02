@@ -581,6 +581,60 @@ python scripts/start_tunnel.py --port 8000
 
 ---
 
+# 🚀 CI/CD Deployment Pipeline
+
+## Standard Operational Protocol
+
+The Maneki-AI deployment chain follows a strict **3-step continuous workflow**:
+
+```
+git commit  →  git push  →  python scripts/trigger_deploy.py
+```
+
+### Step-by-Step
+
+| Step | Command | Description |
+|------|---------|-------------|
+| **1. Commit** | `git add . && git commit -m "message"` | Stage and commit your changes locally |
+| **2. Push** | `git push origin main` | Push commits to GitHub (Render auto-detects changes) |
+| **3. Deploy** | `python scripts/trigger_deploy.py` | Fire the Render Deploy Hook to trigger an immediate deployment |
+
+### The Trigger Script
+
+`scripts/trigger_deploy.py` is a zero-dependency Python script that:
+
+1. Reads `RENDER_DEPLOY_HOOK` from the environment (set in `.env`)
+2. Sends a **POST** request to Render's deploy hook API
+3. Prints the HTTP response status code for verification
+
+```bash
+# Example output:
+🚀 [Maneki-AI] Sending trigger pulse to Render...
+✅ [Maneki-AI] Render responded with HTTP 200
+🎯 [Maneki-AI] Deployment triggered successfully!
+```
+
+### Environment Setup
+
+The deploy hook URL is stored **only** in the local `.env` file:
+
+```bash
+# .env (LOCAL ONLY — never committed to GitHub)
+RENDER_DEPLOY_HOOK=https://api.render.com/deploy/srv-d8bjvjsm0tmc73dgnh70?key=rlWA0Q8ca4w
+```
+
+> ⚠️ **Security:** `.env` is listed in `.gitignore` and will **never** be pushed to GitHub. The deploy hook key is a sensitive credential.
+
+### Verification
+
+After triggering a deployment:
+
+1. Check the terminal output for `HTTP 200` / `HTTP 202` success status
+2. Visit **[https://dashboard.render.com](https://dashboard.render.com)** to monitor the live build progress
+3. Once complete, verify the updated dashboard at **[https://maneki-ai.onrender.com/](https://maneki-ai.onrender.com/)**
+
+---
+
 # 📁 Project Structure
 
 ```

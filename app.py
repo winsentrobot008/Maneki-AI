@@ -1,4 +1,5 @@
-"""
+"""from factory_ui import render_factory_trigger
+render_factory_trigger()
 app.py â€” Maneki-AI æ‹›è´¢çŒ«ä»»åŠ¡æ§åˆ¶å° (Render Deployment Entry)
 
 A Streamlit single-page application deployed at https://maneki-ai.onrender.com/.
@@ -812,4 +813,4 @@ def render_factory_trigger():
             except Exception as e:
                 st.error(f'Factory Error: {e}')
 
-# ×Ô¶¯µ÷ÓÃäÖÈ¾Âß¼­
+# ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¾ï¿½ß¼ï¿½
