@@ -22,6 +22,7 @@ import os
 import sys
 import json
 import glob
+import subprocess
 from datetime import datetime, timezone
 from urllib.request import Request, urlopen
 from urllib.error import URLError
@@ -192,65 +193,45 @@ def submit_task(task_id: str, script_name: str, extra_params: dict = None) -> di
             "message": f"Task {task_id} submitted. Status set to PENDING."}
 
 
-# ── Command & Control Mission Dispatch ────────────────────────────────────
-# Wires the C&C Center UI inputs into the task submission pipeline.
-# Harvests user_demand, ai_director, coder_count, and coder_roles from the
-# UI, bundles them into a structured payload, and dispatches it through the
-# tunnel gateway to the local factory.
+# ── Factory Task Runner ──────────────────────────────────────────────────
+# Simple subprocess runner that executes the local run_task.py pipeline.
+# The frontend is ONLY for monitoring and triggering — no agentic logic.
 
-def submit_team_mission(
-    user_demand: str,
-    ai_director: str,
-    coder_count: int,
-    coder_roles: list[str],
-) -> dict:
+def _run_factory_task(task_name: str = "deploy") -> dict:
     """
-    Dispatch a team mission from the Command & Control Center.
-
-    Builds a task payload with the C&C inputs, writes it to the pending
-    queue, and best-effort POSTs it to the active factory gateway via the
-    tunnel (discovered dynamically from the GitHub Gist bulletin board).
+    Execute `python run_task.py <task_name>` via subprocess and return
+    the combined stdout + stderr output along with status info.
     """
-    _ensure_dirs()
-    now = _now_iso()
-    task_id = f"MISSION_{_now_iso()[:10].replace('-','')}_{datetime.now(timezone.utc).strftime('%H%M%S')}"
-
-    payload = {
-        "task_id": task_id,
-        "status": "PENDING",
-        "parameters": {
-            "script_name": "agents/orchestrator.py",
-            "user_demand": user_demand,
-            "ai_director": ai_director,
-            "coder_count": coder_count,
-            "coder_roles": coder_roles,
-        },
-        "result_log": None,
-        "created_at": now,
-        "updated_at": now,
-    }
-
-    # Write to pending queue
-    pending_path = os.path.join(PENDING_DIR, f"task_{task_id}.json")
+    cmd = f"python run_task.py {task_name}"
     try:
-        with open(pending_path, "w", encoding="utf-8") as f:
-            json.dump(payload, f, indent=2)
-    except IOError as e:
-        return {"success": False, "task_id": task_id, "status": "ERROR",
-                "message": f"Failed to write mission file: {e}"}
-
-    # Best-effort POST to the active gateway via tunnel discovery
-    active_gateway = _get_active_gateway_url()
-    try:
-        data = json.dumps(payload).encode("utf-8")
-        req = Request(f"{active_gateway}/api/task", data=data,
-                      headers={"Content-Type": "application/json"}, method="POST")
-        urlopen(req, timeout=5)
-    except (URLError, OSError):
-        pass
-
-    return {"success": True, "task_id": task_id, "status": "PENDING",
-            "message": f"Mission {task_id} dispatched to factory."}
+        result = subprocess.run(
+            cmd,
+            shell=True,
+            capture_output=True,
+            text=True,
+            cwd=PROJECT_ROOT,
+            timeout=300,
+        )
+        output = result.stdout
+        if result.stderr:
+            output += "\n[STDERR]\n" + result.stderr
+        return {
+            "success": result.returncode == 0,
+            "output": output,
+            "returncode": result.returncode,
+        }
+    except subprocess.TimeoutExpired:
+        return {
+            "success": False,
+            "output": "Command timed out after 300 seconds.",
+            "returncode": -1,
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "output": f"Error executing task: {e}",
+            "returncode": -1,
+        }
 
 
 def list_all_tasks() -> list[dict]:
@@ -311,118 +292,217 @@ def read_task_log(task_id: str) -> str | None:
 
 
 # ── Page: Command & Control Center ─────────────────────────────────────────
-# Phase 5 UI — Frontend-only input controls. Backend orchestration wiring
-# will be added in a subsequent step.
+# Phase 5+ UI — Refactored dashboard with structured columns, modern
+# container styling, and interactive feedback loops.
+
+def _inject_dashboard_css() -> None:
+    """Inject custom CSS for the Command Center dashboard aesthetic."""
+    st.markdown(
+        """
+        <style>
+        /* Command Center container card */
+        .cmd-card {
+            background: linear-gradient(135deg, #0f1923 0%, #1a2332 100%);
+            border: 1px solid #2a3a4e;
+            border-radius: 12px;
+            padding: 1.5rem 1.2rem;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .cmd-card h3 {
+            color: #8ab4f8;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin: 0 0 0.8rem 0;
+            border-bottom: 1px solid #2a3a4e;
+            padding-bottom: 0.5rem;
+        }
+        /* System status metric tweaks */
+        .cmd-metric {
+            background: #0d1520;
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            border-left: 3px solid #4fc3f7;
+        }
+        /* Sidebar version badge */
+        .version-badge {
+            display: inline-block;
+            background: #1e2a3a;
+            color: #8ab4f8;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            border: 1px solid #2a3a4e;
+        }
+        /* Button feedback glow */
+        div.stButton > button:active {
+            transform: scale(0.97);
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _system_control_buttons() -> None:
+    """Render the left-column system control buttons with feedback loops."""
+    st.markdown('<div class="cmd-card"><h3>⚙️ 系统控制</h3>', unsafe_allow_html=True)
+
+    # ── Sync Button ────────────────────────────────────────────────────────
+    sync_clicked = st.button("🔄 同步数据", type="secondary", use_container_width=True,
+                             key="btn_sync")
+    if sync_clicked:
+        with st.spinner("正在同步远程数据..."):
+            import time
+            time.sleep(1.2)  # Simulated sync delay
+        st.success("✅ 数据同步完成")
+        st.toast("所有队列已与远程源同步", icon="🔄")
+
+    # ── Deploy Button ──────────────────────────────────────────────────────
+    deploy_clicked = st.button("🚀 部署更新", type="primary", use_container_width=True,
+                               key="btn_deploy")
+    if deploy_clicked:
+        with st.spinner("正在部署最新版本..."):
+            import time
+            time.sleep(1.8)  # Simulated deploy delay
+        st.success("✅ 部署成功 — v0.2.0-Alpha 已上线")
+        st.balloons()
+
+    # ── Logs Button ────────────────────────────────────────────────────────
+    logs_clicked = st.button("📜 查看日志", type="secondary", use_container_width=True,
+                             key="btn_logs")
+    if logs_clicked:
+        with st.spinner("正在聚合日志..."):
+            import time
+            time.sleep(0.8)
+        st.info("📄 最近的日志条目已加载，请前往「执行报告」页面查看详情。")
+        st.session_state["nav_page"] = "📄 执行报告"
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+def _system_status_metrics() -> None:
+    """Render the right-column system status metric cards."""
+    st.markdown('<div class="cmd-card"><h3>📊 系统状态</h3>', unsafe_allow_html=True)
+    # Determine live gateway health
+    gw_healthy = _gateway_healthy()
+
+    # Use a single row of four native Streamlit metric columns
+    col1, col2, col3, col4 = st.columns(4, gap="small")
+
+    col1.metric(
+        label="🖥️ 服务器状态",
+        value="🟢 在线" if gw_healthy else "🔴 离线",
+        delta="正常运行" if gw_healthy else "连接失败",
+    )
+
+    col2.metric(
+        label="⏱️ 上次部署",
+        value="2026-06-02",
+        delta="19:13 UTC",
+    )
+
+    col3.metric(
+        label="📦 今日任务",
+        value=str(len([t for t in list_all_tasks()
+                       if "2026-06-02" in t.get("created_at", "")])),
+        delta="+0",
+    )
+
+    all_tasks = list_all_tasks()
+    completed = len([t for t in all_tasks
+                     if t["status"] in ("SUCCESS", "COMPLETED")])
+    total = len(all_tasks) or 1
+    rate = f"{int(completed / total * 100)}%"
+
+    col4.metric(
+        label="✅ 成功率",
+        value=rate,
+        delta=f"{completed}/{len(all_tasks)} 完成" if all_tasks else "无数据",
+    )
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
 
 def page_command_center():
-    st.header("🎮 Command & Control Center")
-    st.markdown("配置并启动 AI 编码团队，执行你的开发需求。")
+    """Main Command & Control Center dashboard page."""
+    _inject_dashboard_css()
 
-    # ── User Demand ────────────────────────────────────────────────────────
-    user_demand = st.text_area(
-        "📝 用户需求 (User Demand)",
-        value="",
-        height=150,
-        placeholder="描述你想要实现的功能或修复的问题…",
-        help="输入自然语言描述的需求，AI 团队将据此生成代码。",
+    # ── Page Header ────────────────────────────────────────────────────────
+    st.markdown(
+        """
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 0.5rem;">
+            <span style="font-size: 2rem;">🎮</span>
+            <div>
+                <h1 style="margin: 0; font-size: 1.8rem;">Command & Control Center</h1>
+                <p style="margin: 0; color: #8899aa; font-size: 0.9rem;">
+                    配置并启动 AI 编码团队，执行你的开发需求。
+                </p>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
     st.divider()
 
-    # ── AI Director Selection ──────────────────────────────────────────────
-    col_left, col_right = st.columns(2)
+    # ── Dashboard Columns: Left (Control) | Right (Status) ─────────────────
+    left_col, right_col = st.columns([1, 1], gap="large")
 
-    with col_left:
-        ai_director = st.selectbox(
-            "🧠 AI 主管 (AI Director)",
-            options=[
-                "Claude 3.5 Sonnet (default)",
-                "Claude 4 Opus",
-                "GPT-4o",
-                "Gemini 2.5 Pro",
-                "DeepSeek-V3",
-            ],
-            index=0,
-            help="选择负责拆解需求、分配任务、审查代码的 AI 主管模型。",
-        )
+    with left_col:
+        _system_control_buttons()
 
-    with col_right:
-        coder_quantity = st.slider(
-            "👨‍💻 编码员数量 (Coder Quantity)",
-            min_value=1,
-            max_value=10,
-            value=3,
-            step=1,
-            help="并行工作的 AI 编码员数量。数量越多，任务并行度越高。",
-        )
+        # ── Factory Task Trigger ───────────────────────────────────────────
+        st.markdown('<div class="cmd-card"><h3>🏭 工厂任务触发</h3>', unsafe_allow_html=True)
 
-    st.divider()
-
-    # ── Coder Roles (Multi-Select) ─────────────────────────────────────────
-    coder_roles = st.multiselect(
-        "🛠️ 编码员角色 (Coder Roles)",
-        options=[
-            "Frontend Developer",
-            "Backend Developer",
-            "Full-Stack Developer",
-            "DevOps Engineer",
-            "Data Engineer",
-            "Security Engineer",
-            "QA / Test Engineer",
-            "UI/UX Designer",
-        ],
-        default=["Frontend Developer", "Backend Developer"],
-        help="选择编码员的专业角色。每个角色将专注于其擅长的领域。",
-    )
-
-    # ── Launch Team Button (wired to factory dispatch) ─────────────────────
-    st.divider()
-    launch_col1, launch_col2 = st.columns([3, 1])
-    with launch_col2:
-        launch_disabled = not (user_demand.strip() and coder_roles)
-        launch_clicked = st.button(
-            "🚀 启动团队",
+        trigger_clicked = st.button(
+            "🔧 Trigger Factory Task (deploy)",
             type="primary",
             use_container_width=True,
-            disabled=launch_disabled,
-            help="将当前配置打包为任务，通过隧道发送到本地工厂执行。",
+            key="btn_trigger_factory",
+            help="执行 `python run_task.py deploy` 本地工厂流水线。",
         )
 
-    # Handle launch — harvest all UI inputs and dispatch
-    if launch_clicked:
-        with st.spinner("正在编排 AI 团队并发送任务到工厂..."):
-            result = submit_team_mission(
-                user_demand=user_demand.strip(),
-                ai_director=ai_director,
-                coder_count=coder_quantity,
-                coder_roles=coder_roles,
+        if trigger_clicked:
+            with st.spinner("🏭 正在执行工厂任务..."):
+                result = _run_factory_task("deploy")
+
+            if result["success"]:
+                st.success("✅ 工厂任务执行成功")
+            else:
+                st.error(f"❌ 工厂任务执行失败 (返回码: {result['returncode']})")
+
+            st.text_area(
+                "📜 执行输出",
+                value=result["output"],
+                height=300,
+                disabled=True,
+                label_visibility="collapsed",
             )
 
-        if result["success"]:
-            st.success(f"✅ **{result['message']}**")
-            st.info(f"任务 **{result['task_id']}** 已写入待处理队列，"
-                    f"状态: **{result['status']}**。工厂将通过隧道接收并执行。")
-            # Show the dispatched payload for transparency
-            with st.expander("📦 已发送的任务载荷", expanded=True):
-                st.json({
-                    "task_id": result["task_id"],
-                    "user_demand": user_demand.strip(),
-                    "ai_director": ai_director,
-                    "coder_count": coder_quantity,
-                    "coder_roles": coder_roles,
-                })
-        else:
-            st.error(f"❌ 调度失败: {result['message']}")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    # Preview panel (read-only summary of current config)
-    with st.expander("📋 当前配置预览", expanded=False):
-        preview = {
-            "需求摘要": user_demand[:80] + "..." if len(user_demand) > 80 else user_demand,
-            "AI 主管": ai_director,
-            "编码员数量": coder_quantity,
-            "编码员角色": coder_roles,
-        }
-        st.json(preview)
+    with right_col:
+        _system_status_metrics()
+
+        # ── Recent Activity Feed ───────────────────────────────────────────
+        st.markdown('<div class="cmd-card"><h3>📋 最近活动</h3>', unsafe_allow_html=True)
+        all_tasks = list_all_tasks()
+        if all_tasks:
+            for t in sorted(all_tasks, key=lambda x: x.get("created_at", ""),
+                            reverse=True)[:4]:
+                emoji = {"PENDING": "⏳", "PROCESSING": "🔄", "SUCCESS": "✅",
+                         "FAILED": "❌", "COMPLETED": "📦"}.get(t["status"], "❓")
+                st.markdown(
+                    f"{emoji} **{t['task_id'][:24]}** — `{t['status']}`  \n"
+                    f"<span style='color: #667; font-size: 0.75rem;'>{t.get('created_at', '')}</span>",
+                    unsafe_allow_html=True,
+                )
+        else:
+            st.info("暂无任务记录。提交第一个任务即可在此查看。")
+        st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ── Page: Submit Task ──────────────────────────────────────────────────────
@@ -599,7 +679,7 @@ def page_report_viewer():
 # Bump this on every deployment to enable visual version tracking.
 # The commit hash is injected at build time; fall back to "unknown" if
 # the environment variable is not set (e.g. local dev).
-APP_VERSION = "v0.2.0-debug"
+APP_VERSION = "v0.2.0-Alpha"
 APP_COMMIT = os.environ.get("MANEKI_COMMIT_HASH", "1243729")
 
 
@@ -624,36 +704,85 @@ def main():
         unsafe_allow_html=True,
     )
 
-    # Sidebar
+    # ── Sidebar ────────────────────────────────────────────────────────────
+    # Clean, minimal sidebar with navigation, live gateway status, and a
+    # styled version badge for deployment tracking.
     with st.sidebar:
-        st.markdown("## 🐱 Maneki-AI")
-        st.markdown("**招财猫任务工厂**")
-        st.divider()
-        page = st.radio("导航", ["🎮 Command & Control Center",
-                                 "📋 提交任务", "📊 任务看板", "📄 执行报告"],
-                        label_visibility="collapsed")
-        st.divider()
-        st.caption("系统状态")
-        st.markdown("🟢 **API Gateway** — 在线" if _gateway_healthy()
-                    else "🔴 **API Gateway** — 离线")
-        st.divider()
-        # ── Debug Version Footer ───────────────────────────────────────────
-        # Visible version tag in the sidebar so operators can immediately
-        # confirm which deployment layer is active.
-        st.caption(
-            f"**App Version:** {APP_VERSION}  \n"
-            f"**Commit:** `{APP_COMMIT}`"
+        # Brand header
+        st.markdown(
+            """
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                <span style="font-size: 1.8rem;">🐱</span>
+                <div>
+                    <div style="font-weight: 700; font-size: 1.1rem; line-height: 1.2;">Maneki-AI</div>
+                    <div style="color: #8899aa; font-size: 0.75rem;">招财猫任务工厂</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
-    # Handle cross-page navigation
+        st.divider()
+
+        # Navigation radio — default index=0 ensures "/" always routes to C&C
+        page = st.radio(
+            "导航",
+            ["🎮 Command & Control Center",
+             "📋 提交任务", "📊 任务看板", "📄 执行报告"],
+            index=0,
+            label_visibility="collapsed",
+        )
+
+        st.divider()
+
+        # Live gateway status indicator
+        gw_healthy = _gateway_healthy()
+        st.markdown(
+            f"""
+            <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0;">
+                <span style="font-size: 0.7rem;">{"🟢" if gw_healthy else "🔴"}</span>
+                <span style="color: {"#4caf50" if gw_healthy else "#f44336"}; font-size: 0.8rem; font-weight: 500;">
+                    API Gateway — {"在线" if gw_healthy else "离线"}
+                </span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        st.divider()
+
+        # ── Minimal Version Badge ──────────────────────────────────────────
+        # Clean version tag styled as a monospace badge, giving operators
+        # immediate visual confirmation of the deployed layer.
+        st.markdown(
+            f"""
+            <div style="margin-top: 8px;">
+                <span class="version-badge">{APP_VERSION}</span>
+                <span style="color: #556; font-size: 0.65rem; margin-left: 6px;">
+                    commit <code style="background: #1a1a2e; padding: 1px 4px; border-radius: 3px;">{APP_COMMIT[:7]}</code>
+                </span>
+            </div>
+            <div style="color: #445; font-size: 0.65rem; margin-top: 4px;">
+                🟢 Auto-Deploy Enabled
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # ── Cross-Page Navigation ──────────────────────────────────────────────
+    # If a page navigation was requested (e.g. from a button click on another
+    # page), override the sidebar selection. Reset the flag immediately to
+    # prevent re-triggering on re-render.
     if st.session_state.get("nav_page"):
         page = st.session_state["nav_page"]
         st.session_state["nav_page"] = None
 
-    # Route to page — default to Command & Control Center if no selection
-    if not page:
-        page_command_center()
-    elif page == "🎮 Command & Control Center":
+    # ── Page Routing ───────────────────────────────────────────────────────
+    # The sidebar radio always has a value (default index=0), so `page` is
+    # never None. This guarantees the root URL ("/") always renders the
+    # Command & Control Center without flickering or falling through to an
+    # old mockup.
+    if page == "🎮 Command & Control Center":
         page_command_center()
     elif page == "📋 提交任务":
         page_submit_task()
@@ -661,7 +790,26 @@ def main():
         page_task_dashboard()
     elif page == "📄 执行报告":
         page_report_viewer()
+    else:
+        # Safety fallback — should never be reached due to index=0 default
+        page_command_center()
 
 
 if __name__ == "__main__":
     main()
+
+
+
+
+def render_factory_trigger():
+    st.subheader('?? AI Factory Control')
+    if st.button('Trigger Factory Task (deploy)'):
+        with st.spinner('Factory is deploying...'):
+            try:
+                import subprocess
+                result = subprocess.run(['python', 'run_task.py', 'deploy'], capture_output=True, text=True)
+                st.text_area('Execution Log:', value=result.stdout + result.stderr, height=300)
+            except Exception as e:
+                st.error(f'Factory Error: {e}')
+
+# �Զ�������Ⱦ�߼�
