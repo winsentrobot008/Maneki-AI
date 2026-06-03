@@ -65,6 +65,26 @@
       "command": "python agent_engine/cline_worker.py",
       "engine": "openclaw",
       "timeout": 300
+    },
+    "settle": {
+      "description": "Settle a completed task via Success-Share Financial Clearing Engine",
+      "command": "python -c \"from clearing_engine.core import FinancialClearingEngine; engine = FinancialClearingEngine(); print('✅ Financial Clearing Engine ready')\"",
+      "engine": "ecc",
+      "timeout": 30
+    },
+    "report-success": {
+      "description": "Generate a Success-Share period report",
+      "command": "python -c \"from clearing_engine.core import FinancialClearingEngine; FinancialClearingEngine.cli_report()\"",
+      "engine": "ecc",
+      "timeout": 30
+    },
+    "metrics": {
+      "description": "Display Success-Share metrics summary",
+      "command": "python -c \"from clearing_engine.core import FinancialClearingEngine; import json; e=FinancialClearingEngine(); print(json.dumps(e.get_metrics_dict()['display'], indent=2))\"",
+      "engine": "ecc",
+      "timeout": 30
     }
   }
 }
+
+

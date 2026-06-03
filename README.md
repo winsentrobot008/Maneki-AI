@@ -1,151 +1,84 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/Status-Active-success?style=flat-square" alt="Status">
-  <img src="https://img.shields.io/badge/Architecture-Multi%20Agent%20Factory-blue?style=flat-square" alt="Architecture">
-  <img src="https://img.shields.io/badge/Orchestration-CrewAI%20Powered-purple?style=flat-square" alt="Orchestration">
-  <img src="https://img.shields.io/badge/Autonomy-35%25%20Built-yellow?style=flat-square" alt="Autonomy">
-</p>
+# 🏭 Maneki-AI Factory: 全自动智能业务引擎
 
-<h1 align="center">🐱 Maneki-AI: 你的全自动智能业务终端</h1>
-<h3 align="center">简单交互 · 强大执行 · 24 小时自动循环</h3>
+Maneki-AI 是一个基于"多智能体协作"逻辑构建的**自主业务生产工厂操作系统（AI Factory OS）**。它将复杂的技术架构隐藏在极简的交互界面之下，让每个人都能指挥一支由全球顶级 AI 模型组成的"梦之队"来执行端到端的业务流。
 
-<p align="center">
-  <strong>Command & Control Center:</strong> <a href="https://maneki-ai.onrender.com/">https://maneki-ai.onrender.com/</a>
-  <br>
-  <sub><strong>App Version:</strong> v0.3.0-factory · <strong>Architecture:</strong> Multi-Agent Factory</sub>
-</p>
+> **版本**: v0.3.0-factory · **架构**: Async AI Factory · **自治度**: 35% Built
 
 ---
 
-# 📋 目录
+## 📋 目录
 
 1. [核心经营哲学](#-核心经营哲学)
-2. [AI 董事会 (Multi-Model Board)](#-ai-董事会-multi-model-board)
-3. [多智能体协作引擎](#-多智能体协作引擎-powered-by-crewai)
-4. [核心应用场景](#-核心应用场景)
-5. [系统架构](#-系统架构)
-6. [核心引擎组件](#-核心引擎组件)
-7. [AI 编排策略](#-ai-编排策略)
-8. [扩展模块](#-扩展模块)
-9. [项目结构](#-项目结构)
-10. [快速开始](#-快速开始)
-11. [必需的环境变量](#-必需的环境变量)
+2. [AI 董事会](#-ai-董事会-多模型架构)
+3. [系统架构](#-系统架构)
+4. [核心引擎组件](#-核心引擎组件)
+5. [商业模式](#-商业模式-收益分成-success-share)
+6. [扩展模块](#-扩展模块)
+7. [项目结构](#-项目结构)
+8. [快速开始](#-快速开始)
+9. [开发路线图](#-开发路线图)
 
 ---
 
-# 💡 核心经营哲学
+## 💡 核心经营哲学
 
-Maneki-AI 是一个基于**"多智能体协作"**逻辑构建的自主业务生产工厂。它将复杂的技术架构隐藏在极简的交互界面之下，让每个人都能指挥一支由全球顶级 AI 模型组成的**"梦之队"**。
+**"极简交互，极限执行"**
 
-### **"简单交互，强大执行"**
+你无需配置模型参数，无需管理代码环境。只需输入你的商业目标，Maneki-AI 工厂将自动拆解任务、组建 AI 团队、执行逻辑并交付最终成果。
 
-你无需配置模型参数，无需管理代码环境。只需输入你的商业目标，Maneki-AI 工厂将自动拆解任务、组建团队并交付成果。
+### 核心链路
 
 ```
-你输入："帮我做一份 AI 视频出海的推广方案"
-      │
-      ▼
-Maneki-AI 自动完成：趋势调研 → 文案生成 → 资产部署 → 报告交付
-      │
-      ▼
-你获得：完整的推广方案 + 可执行的资产包
+用户 → Maneki-AI → AI 总监 → ECC → OpenClaw / Agent-S
 ```
+
+| 层级 | 角色 | 职责 |
+|------|------|------|
+| **用户层** | 任务发布者 | 发布任务、查看状态、干预执行 |
+| **Maneki-AI（总部 HQ）** | 控制台 | 用户系统、任务调度、Worker 管理、链路可视化 |
+| **AI 总监（AI Director）** | 决策层 | 理解任务、拆解计划、决定执行策略 |
+| **ECC（中央神经系统）** | 编排层 | 任务分解、依赖排序、结果验证 |
+| **OpenClaw（机械臂）** | 执行层 | CLI 命令、文件操作、代码转换 |
+| **Agent-S（侦察兵）** | 外部层 | 网页导航、SaaS 交互、情报收集 |
+
+### 设计原则
+
+- **零基础设施消息总线**：GitHub Issues 作为持久化、可审计、免费的异步消息队列
+- **解耦调度与执行**：云端和本地独立运行，互不影响
+- **离线韧性**：本地离线时任务自动累积，重连后批量处理
+- **自纠正闭环**：失败自动重试、绕行、升级或终止
 
 ---
 
-# 🤖 AI 董事会 (Multi-Model Board)
+## 🤖 AI 董事会 (多模型架构)
 
-Maneki-AI 动态路由任务，为每一项工作分配最合适的**"首席专家"**：
+Maneki-AI 动态路由任务，为每一项工作分配最合适的"首席专家"：
 
-| 角色 | 模型 | 专长领域 |
-|------|------|----------|
-| **🧠 战略与调度** | **Gemini** | 全局统筹，复杂逻辑拆解与状态监控 |
-| **🔬 深度逻辑与架构** | **DeepSeek** | 高性能代码开发与数学逻辑推演 |
-| **🎨 创意与本土化** | **豆包/Doubao** | 中文互联网传播、内容钩子与营销策划 |
-| **🔗 生态整合** | **元宝/Yuanbao** | 国内生态交互、社交数据链路整合 |
-| **🌍 全球通用标准** | **OpenAI/Claude** | 标准化编程架构与复杂逻辑支持 |
+| 模型 | 代号 | 职责 |
+|------|------|------|
+| **Gemini** | 🧠 战略与调度 | 全局统筹，复杂逻辑拆解与状态监控 |
+| **DeepSeek** | 🔧 深度逻辑与架构 | 高性能代码开发、架构设计与数学逻辑推演 |
+| **豆包/Doubao** | 🎨 创意与本土化 | 中文互联网传播、内容钩子与营销策划 |
+| **元宝/Yuanbao** | 🌐 生态整合 | 国内生态交互、社交数据链路整合 |
+| **OpenAI/Claude** | 📋 全球通用标准 | 标准化编程架构与复杂逻辑审计支持 |
 
-> 每个任务自动匹配最优模型组合，无需手动选择。
+### 任务路由机制
 
----
+任务通过标签（tags）自动路由到最合适的 AI 模型：
 
-# 🛠️ 多智能体协作引擎 (Powered by CrewAI)
-
-工厂的核心在于**"智能团队装配"**逻辑：
-
-### 动态组队
-
-根据用户需求（视频 / 游戏 / 金融），自动组建临时 AI 协作小组：
-
-```
-用户需求: "制作一个 AI 游戏"
-      │
-      ▼
-自动组队:
-┌─────────────────────────────────────────────┐
-│  🧠 产品经理 (Gemini)  — 需求分析与规划      │
-│  🔧 主程 (DeepSeek)    — 核心逻辑开发        │
-│  🎨 美术指导 (Doubao)  — 视觉风格与文案      │
-│  🧪 测试工程师 (Claude)— 自动化测试与验证    │
-│  🚀 运维 (OpenClaw)    — 构建与部署          │
-└─────────────────────────────────────────────┘
-```
-
-### 层级执行流
-
-严格的任务依赖管理，确保每一道工序符合质检标准：
-
-```
-编码 → 测试 → 审查 → 部署
-  │      │      │      │
-  ▼      ▼      ▼      ▼
-通过 ← 通过 ← 通过 ← ✅ 交付
-```
-
-### 闭环金融模型
-
-内置 DeFi 自我结算系统，通过自动清算手续费为工厂的 API 调用提供**永续资金**。
+| 标签 | 路由目标 |
+|------|----------|
+| `strategy`, `orchestration` | Gemini |
+| `code`, `logic` | DeepSeek |
+| `creative`, `marketing` | Doubao |
+| `social` | Yuanbao |
+| `audit`, `standardization` | OpenAI/Claude |
 
 ---
 
-# 🚀 核心应用场景
+## ⚙️ 系统架构
 
-## 1. 📹 自动媒体工厂
-
-从趋势分析到爆火文案生成，全自动视频矩阵部署：
-
-- **趋势侦察 (Agent-S)**：扫描 YouTube/TikTok 等平台，识别 3 个月内的高性能趋势
-- **爆款模式提取 (ECC + Codex)**：分析"病毒钩子"和成功内容的结构范式
-- **自动生产 (OpenClaw)**：执行从脚本编写到资产部署的完整生成流水线
-- **持续报告**：自动汇总每日进度、KPI 指标和收益状态
-
-## 2. 🎮 AI 游戏工厂
-
-快速原型构建，自动化测试与游戏商店发布：
-
-- **市场情报 (Agent-S)**：分析热门游戏类型和玩家反馈，识别"高潜力"利基项目
-- **快速原型 (ECC + Codex)**：基于验证过的架构模式自动组装游戏逻辑
-- **持续分发 (Agent-S)**：处理自动构建、部署和商店页面更新
-- **财务自主 (ECC)**：游戏收入自动重新分配至 API Token 预算，确保 24/7 自主生产
-
-## 3. 💰 金融智能终端
-
-实时金融新闻监控，情绪分析，自动化清算管理：
-
-- **全球新闻情报 (Agent-S)**：24/7 聚合实时全球金融新闻和市场情绪
-- **预测分析 (ECC + LLM)**：处理市场数据，提供可操作趋势和"看涨/看跌"情绪分析
-- **自动执行 (OpenClaw)**：通过严格逻辑参数与券商 API 交互执行交易
-- **风险控制引擎 (ECC)**：强制"熔断机制"和止损逻辑，优先保障资本安全
-
-## 4. 🌐 DeFi 基础设施与跨境结算
-
-- **智能合约工厂 (OpenClaw)**：自动部署和管理流动性交易市场
-- **跨境情报 (Agent-S)**：分析全球资金流向，提供高效结算路径
-- **自主清算 (ECC)**：执行无缝资产转换，捕获交易手续费维持工厂运营
-- **安全优先合规**：自动链上风险监控，确保所有金融操作在安全参数内
-
----
-
-# 🏗️ 系统架构
+### 双平面架构
 
 Maneki-AI 采用异步的 **"GitHub-Driven Dispatch"** 模型，系统解耦为两个独立平面：
 
@@ -175,20 +108,34 @@ Maneki-AI 采用异步的 **"GitHub-Driven Dispatch"** 模型，系统解耦为�
 │                       ▼                                                     │
 │   🏭 LOCAL MACHINE (Autonomous Execution Engine)                             │
 │   ┌──────────────────────────────────────────┐                               │
-│   │  • watcher.py — polls repo for orders    │                               │
+│   │  • core/task_listener.py — polls repo    │                               │
 │   │  • run_task.py — execution pipeline      │                               │
 │   │  • commands.json — task registry         │                               │
 │   │  • workshop/ — ECC & OpenClaw engines    │                               │
 │   │  • agent_engine/ — Agent-S integration   │                               │
+│   │  • clearing_engine/ — Financial settlement│                              │
 │   │                                          │                               │
 │   │  Role: Detect orders, strategize via     │                               │
 │   │  ECC, execute via OpenClaw, scout via    │                               │
-│   │  Agent-S                                 │                               │
+│   │  Agent-S, settle via Clearing Engine     │                               │
 │   └──────────────────────────────────────────┘                               │
 │                                                                               │
-│   🔄 The Flow: UI Trigger → GitHub Issue → Poll → Strategize → Execute → Log │
+│   🔄 The Flow: UI Trigger → GitHub Issue → Poll → Strategize → Execute →     │
+│                  Verify → Settle → Log                                       │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+### API 网关端点
+
+| 方法 | 端点 | 来源 | 描述 |
+|------|------|------|------|
+| POST | `/api/dispatch` | Web UI | 分发任务到 AI 董事会（含风险评估） |
+| POST | `/api/task` | n8n/Agent-S | 注入任务到待处理队列（严格验证） |
+| POST | `/api/submit-task` | Web UI | 提交任务 → 状态 PENDING |
+| GET | `/api/tasks` | Web UI | 列出所有任务及状态 |
+| GET | `/api/tasks/{id}` | Web UI | 获取任务详情 + 报告 + 日志 |
+| GET | `/api/health` | 任意 | 健康检查 |
+| GET | `/` | 浏览器 | HTML 控制中心页面 |
 
 ### 关键设计决策
 
@@ -201,15 +148,13 @@ Maneki-AI 采用异步的 **"GitHub-Driven Dispatch"** 模型，系统解耦为�
 
 ---
 
-# 🧠 核心引擎组件
+## 🧠 核心引擎组件
 
-工厂由三个互补引擎组成**三一体（Trinity）**—— ECC 指挥任务，OpenClaw 执行内部代码操作，Agent-S 执行外部网络情报收集。
+### 1. ECC（Execution Control Core）— 中央神经系统
 
-## ECC（Execution Control Core）— 🧠 中央神经系统
+**文件**: `workshop/ecc_core.py`
 
-**文件:** `workshop/ecc_core.py`
-
-ECC 是工厂的**大脑**，编排整个执行生命周期 — 从任务接收到完成。
+ECC 是工厂的**中央神经系统**，编排整个执行生命周期 — 从任务接收到完成。
 
 | 功能 | 描述 |
 |------|------|
@@ -217,13 +162,14 @@ ECC 是工厂的**大脑**，编排整个执行生命周期 — 从任务接收�
 | **上下文管理** | 跨子任务维护执行上下文，确保连续性和状态感知 |
 | **依赖排序** | 管理任务间依赖关系 — 确定执行顺序 |
 | **安全编排** | 强制执行操作护栏，验证前置条件，防止不安全执行路径 |
-| **策略指导** | 决定**做什么**和**何时做** |
+| **策略指导** | 决定**做什么**和**何时做** — 工厂的"大脑" |
+| **Success-Share 结算** | 任务完成后自动调用清算引擎进行收益分成 |
 
-## OpenClaw（"龙虾钳"）— 🔧 机械臂
+### 2. OpenClaw（"龙虾钳"）— 机械臂
 
-**文件:** `workshop/openclaw_core.py`
+**文件**: `workshop/openclaw_core.py`
 
-OpenClaw 是工厂的**双手** — 专门与代码库直接交互的代理。
+OpenClaw 是工厂的**机械臂** — 专门与代码库直接交互的代理。
 
 | 功能 | 描述 |
 |------|------|
@@ -231,13 +177,13 @@ OpenClaw 是工厂的**双手** — 专门与代码库直接交互的代理。
 | **代码库交互** | 读取、写入和修改工作区文件 |
 | **输出捕获** | 捕获 stdout、stderr、返回码和执行时间 |
 | **任务抓取** | 从执行队列中拉取任务并针对文件系统执行 |
-| **战术执行** | 决定**如何做** |
+| **流水线执行** | 支持顺序执行命令流水线，失败即停止 |
 
-## Agent-S（"侦察兵/眼睛"）— 👁️ 浏览器代理
+### 3. Agent-S（"侦察兵/眼睛"）— 浏览器代理
 
-**目录:** `agent_engine/`
+**目录**: `agent_engine/`
 
-Agent-S 是工厂的**眼睛** — 基于浏览器的自主代理，负责外部世界交互。
+Agent-S 是工厂的**侦察兵/眼睛** — 基于浏览器的自主代理。
 
 | 功能 | 描述 |
 |------|------|
@@ -245,90 +191,90 @@ Agent-S 是工厂的**眼睛** — 基于浏览器的自主代理，负责外部
 | **SaaS 交互** | 通过 Web UI 与第三方平台交互（GitHub、Slack、Jira 等） |
 | **情报收集** | 侦察外部信息源、监控仪表板、收集信号 |
 | **桥接通信** | 通过 agent_engine 桥接队列与 ECC 和 OpenClaw 通信 |
-| **外部操作** | 决定**看哪里**和**收集什么** |
+| **外部操作** | 决定**看哪里**和**收集什么** — 工厂的"眼睛" |
 
-### 三一体协作
+### 4. Financial Clearing Engine — 财务清算中枢
 
-```
-🧠 ECC 决定策略（"做什么"和"何时做"）
-🔧 OpenClaw 执行内部代码操作（"怎么做" — 内部）
-👁️ Agent-S 执行外部网络情报（"看哪里" — 外部）
-```
+**目录**: `clearing_engine/`
 
----
+内置的 **"Success-Share"** 收益分成机制，自动从净利润中计算服务费用。
 
-# 🤖 AI 编排策略
-
-Maneki-AI 采用 **"多模型编排"** 模式，AI 总监与操作代理（ECC、OpenClaw、Agent-S）共存协作。
-
-### 三阶段协作
-
-#### 阶段 1：🧠 策略阶段 — 编排者定义"作战计划"
-
-编排者（项目总监/通用 AI）分析用户意图并生成高级战略计划：
-
-- **需求解读**：将模糊的用户请求转化为结构化任务目标
-- **架构设计**：确定系统架构、组件边界和集成点
-- **任务分解**：将任务分解为高级阶段
-- **风险评估**：识别潜在故障点并定义回退策略
-- **资源分配**：决定使用哪些操作代理及其能力范围
-
-#### 阶段 2：⚙️ 执行阶段 — 引擎室精确执行
-
-编排者将粒度步骤委托给专门的操作代理（"引擎室"）：
-
-| 代理 | 执行阶段角色 |
-|------|-------------|
-| **ECC** | 接收任务指令 → 分解为可执行步骤 → 排序依赖 → 执行安全护栏 |
-| **OpenClaw** | 执行代码库操作 — CLI 命令、文件转换、输出捕获 |
-| **Agent-S** | 执行外部操作 — 网页导航、SaaS 交互、情报收集 |
-
-#### 阶段 3：🔄 反馈循环 — 实时策略调整
-
-执行后，操作代理向编排者报告成功/失败：
-
-- **成功路径**：结果验证 → 编排者确认任务进展 → 下一阶段开始
-- **失败路径**：代理报告失败及上下文 → 编排者分析根因 → 调整策略：
-  - **重试**：相同方法，不同参数
-  - **绕行**：替代执行路径
-  - **升级**：需要人工干预
-  - **终止**：任务终止，记录部分结果
-
-### 为什么是多模型编排？
-
-| 优势 | 描述 |
+| 功能 | 描述 |
 |------|------|
-| **🧠 并行智能** | 高级抽象思考（编排者）和低级代码执行（引擎室）同时发生 |
-| **🛡️ 关注点分离** | 编排者关注"做什么"和"为什么"；引擎室关注"怎么做" |
-| **🔄 自纠正** | 反馈循环实现实时策略调整，无需重启整个流水线 |
-| **🔌 可插拔总监** | 不同编排者可根据任务类型切换 |
-| **📈 可扩展** | 新操作代理可添加到引擎室，无需更改编排层 |
+| **任务估值** | 基于业务影响对任务进行价值评估 |
+| **自动利润分成** | 无需手动计费 — 费用自动计算 |
+| **服务层级** | Core (10%) / Premium (20%) / Enterprise (30%) |
+| **增长追踪** | 跨周期追踪效率提升和 ROI 变化 |
+| **仪表板集成** | Streamlit 仪表板实时展示财务指标 |
+
+### 5. 风险管理系统
+
+**文件**: `risk_manager.py`
+
+| 功能 | 描述 |
+|------|------|
+| **关键词黑名单** | 阻止危险操作（rm -rf、drop table 等） |
+| **金融隔离检查** | 金融交易需要多重签名人工审批 |
+| **任务安全评估** | 在分发前对每个任务进行安全评估 |
 
 ---
 
-# 🧩 扩展模块
+## 💰 商业模式: 收益分成 (Success-Share)
+
+Maneki-AI 采用 **"收益分成"** 模式，将我们的利益与你的盈利能力直接绑定：
+
+- **结果导向**：只有当你的业务产生价值时，我们才获取回报
+- **自动分账清算**：内置的"财务清算中枢"会自动从净利润中计算并扣除服务比例
+- **共享增长**：效率提升惠及客户和工厂双方
+
+### 服务层级
+
+| 层级 | 费率 | 适用场景 |
+|------|------|----------|
+| 🔧 **Core** | 10% | 基础任务执行 — 单代理操作 |
+| ⚡ **Premium** | 20% | 多代理编排 + 战略规划 |
+| 🏭 **Enterprise** | 30% | 全工厂流水线（ECC + OpenClaw + Agent-S） |
+
+---
+
+## 🔌 扩展模块
 
 | 模块 | 路径 | 角色 |
 |------|------|------|
-| **`factory_ui.py`** | `./factory_ui.py` | 前端界面逻辑 — 渲染工厂触发按钮和用户控件 |
-| **`github_issue.py`** | `./github_issue.py` | GitHub API 客户端 — 在 `DevDirector-Tasks` 中创建 Issue |
-| **`run_task.py`** | `./run_task.py` | 执行流水线 — 读取 `commands.json`，通过 subprocess 调度 CLI 命令 |
-| **`commands.json`** | `./commands.json` | 系统任务注册表 — 将任务名称映射到 CLI 命令、引擎和超时 |
-| **`workshop/`** | `./workshop/` | 引擎核心 — 包含 `ecc_core.py` 和 `openclaw_core.py` |
-| **`agent_engine/`** | `./agent_engine/` | Agent-S 集成层 — 桥接队列、Cline 守护进程/工作进程、安全协议 |
+| **`app.py`** | `./app.py` | FastAPI 控制中心 — 任务分发 + HTML 界面 |
+| **`main.py`** | `./main.py` | 任务分发器 — AI 模型路由矩阵 |
+| **`factory_ui.py`** | `./factory_ui.py` | Streamlit 工厂触发界面 |
+| **`github_issue.py`** | `./github_issue.py` | GitHub API 客户端 — 创建 Issue |
+| **`run_task.py`** | `./run_task.py` | 执行流水线 — 读取 commands.json，调度 CLI 命令 |
+| **`start_factory.py`** | `./start_factory.py` | 本地工厂编排器 — 启动网关 + 监听器 + 隧道 |
+| **`risk_manager.py`** | `./risk_manager.py` | 金融与运营风险断路器 |
+| **`streamlit_app.py`** | `./streamlit_app.py` | 招财猫情报局 Streamlit 界面 |
+| **`commands.json`** | `./commands.json` | 系统任务注册表 — 映射任务到 CLI 命令 |
+| **`workshop/`** | `./workshop/` | 引擎核心 — ECC + OpenClaw + 集成映射 |
+| **`agent_engine/`** | `./agent_engine/` | Agent-S 集成层 — 桥接队列、守护进程、工作进程 |
+| **`clearing_engine/`** | `./clearing_engine/` | 财务清算引擎 — Success-Share 收益分成 |
+| **`core/`** | `./core/` | 基础设施 — API 网关 + 任务监听器 |
+| **`analyst/`** | `./analyst/` | 战略分析 — 军师智能体 |
+| **`radar/`** | `./radar/` | 信号扫描 — Tavily 搜索 + 数据融合 |
+| **`warroom/`** | `./warroom/` | 报告生成 — 情报简报生成器 |
+| **`agents/`** | `./agents/` | AI 总监编排 — 任务队列处理 |
+| **`scripts/`** | `./scripts/` | 工具脚本 — 隧道、部署、测试 |
 
 ---
 
-# 📁 项目结构
+## 📁 项目结构
 
 ```
 Maneki-AI/
-├── app.py                      # Streamlit 云端仪表板（Render 入口）
-├── factory_ui.py               # 前端界面逻辑（Issue 调度器）
+├── app.py                      # FastAPI 云端控制中心（Render 入口）
+├── main.py                     # 任务分发器（AI 模型路由矩阵）
+├── factory_ui.py               # Streamlit 工厂触发界面
 ├── github_issue.py             # GitHub API 客户端（Issue 创建）
 ├── run_task.py                 # 执行流水线（commands.json → subprocess）
-├── commands.json               # 系统任务注册表（ECC + OpenClaw + Agent-S）
 ├── start_factory.py            # 本地工厂编排器
+├── streamlit_app.py            # 招财猫情报局 Streamlit 界面
+├── risk_manager.py             # 金融与运营风险断路器
+├── commands.json               # 系统任务注册表
 ├── render.yaml                 # Render 部署配置
 ├── requirements.txt            # Python 依赖
 ├── runtime.txt                 # Python 运行时版本
@@ -340,6 +286,13 @@ Maneki-AI/
 │   ├── openclaw_core.py        # OpenClaw — 机械臂
 │   └── factory_integration_map.json  # 依赖映射图
 │
+├── clearing_engine/            # 财务清算引擎
+│   ├── __init__.py
+│   ├── core.py                 # FinancialClearingEngine 核心
+│   ├── models.py               # 数据模型（TaskValuation, ProfitSplit 等）
+│   ├── tracker.py              # 价值追踪器
+│   └── dashboard.py            # Streamlit 仪表板组件
+│
 ├── agent_engine/               # Agent-S — 侦察兵/眼睛
 │   ├── bridge.py               # 代理间桥接队列
 │   ├── cline_daemon.py         # Agent-S 守护进程
@@ -350,14 +303,28 @@ Maneki-AI/
 │   ├── api_gateway.py          # HTTP API 网关（端口 8000）
 │   └── task_listener.py        # 任务队列轮询器与执行器
 │
+├── analyst/                    # 战略分析
+│   ├── __init__.py
+│   ├── base.py                 # 基础智能体抽象类
+│   └── strategist_agent.py     # 军师智能体
+│
+├── radar/                      # 信号扫描
+│   ├── __init__.py
+│   ├── tavily_client.py        # Tavily 搜索客户端
+│   └── synthesizer.py          # 多源数据融合
+│
+├── warroom/                    # 报告生成
+│   ├── __init__.py
+│   └── report_generator.py     # 情报简报生成器
+│
+├── agents/                     # AI 总监编排
+│   └── orchestrator.py         # 任务队列处理编排器
+│
 ├── scripts/                    # 工具脚本
 │   ├── start_tunnel.py         # localtunnel 隧道
 │   ├── trigger_deploy.py       # Render 部署钩子触发
 │   ├── example_worker.py       # 示例工作进程
 │   └── test_factory_startup.py # 启动测试套件
-│
-├── agents/                     # AI 总监编排
-│   └── orchestrator.py
 │
 ├── task_queue/                 # 任务生命周期
 │   ├── pending/                # 待处理任务
@@ -366,19 +333,22 @@ Maneki-AI/
 │
 ├── logs/                       # 执行日志
 ├── config/                     # 应用配置
+│   ├── env.template
+│   └── settings.yaml           # 系统设置（关键词、阈值、数据源）
 ├── state/                      # 代理状态持久化
 ├── docs/                       # 文档
 │   ├── PROJECT_OVERVIEW.md     # 项目说明书
 │   └── WEB_ARCHITECTURE.md     # Web 前端架构文档
 ├── deliveries/                 # 任务交付物
-├── analyst/                    # 战略分析
-├── radar/                      # 信号扫描
-└── warroom/                    # 报告生成
+├── reports/                    # 情报简报输出
+├── templates/                  # HTML 模板
+│   └── index.html              # 控制中心 HTML 页面
+└── inject_button.ps1           # PowerShell 注入脚本
 ```
 
 ---
 
-# 🏁 快速开始
+## 🚀 快速开始
 
 ### 前置条件
 
@@ -410,15 +380,13 @@ python start_factory.py
 python run_task.py <task_name> --log
 ```
 
-可用任务：`deploy`、`build`、`test`、`start`、`analyze`、`scan`、`report`、`orchestrate`、`bridge`、`worker`
+可用任务：`deploy`、`build`、`test`、`start`、`analyze`、`scan`、`report`、`orchestrate`、`bridge`、`worker`、`settle`、`report-success`、`metrics`
 
 ### 打开仪表板
 
 访问 **[https://maneki-ai.onrender.com/](https://maneki-ai.onrender.com/)** 调度生产订单。
 
----
-
-# 📋 必需的环境变量
+### 必需的环境变量
 
 | 变量 | 必需 | 用途 |
 |------|------|------|
@@ -427,12 +395,45 @@ python run_task.py <task_name> --log
 | `MANEKI_ENABLE_TUNNEL` | ❌ 否 | 设为 `0` 禁用隧道（默认：`1`） |
 | `MANEKI_TUNNEL_PORT` | ❌ 否 | 隧道本地端口（默认：`8000`） |
 | `API_GATEWAY_URL` | ❌ 否 | 静态回退隧道 URL |
+| `TAVILY_API_KEY` | ❌ 否 | Tavily 搜索 API 密钥 |
+| `N8N_CALLBACK_URL` | ❌ 否 | n8n 出站回调 URL |
 
 ---
 
-<p align="center">
-  <strong>Maneki-AI</strong> — 让业务在 24 小时的自动循环中持续生长 🐱
-</p>
-<p align="center">
-  <sub>v0.3.0-factory · Multi-Agent Factory · CrewAI Powered</sub>
-</p>
+## 🗺️ 开发路线图
+
+### 阶段 1（当前）：Messenger-Agent（MSSAGENT 本地实现）
+- [x] ECC 核心引擎 — 任务分解与编排
+- [x] OpenClaw 核心引擎 — CLI 命令生成与执行
+- [x] Agent-S 集成 — 桥接队列与浏览器自动化
+- [x] API 网关 — HTTP 端点用于任务注入
+- [x] 任务监听器 — 轮询待处理队列并执行
+- [x] Web 仪表板 — Streamlit 前端用于任务调度
+- [x] 隧道服务 — localtunnel 用于云端
+
+### 阶段 2：Success-Share 财务清算
+- [x] Financial Clearing Engine — 自动收益分成
+- [x] 服务层级 — Core / Premium / Enterprise
+- [x] 增长追踪 — 跨周期效率对比
+- [x] 仪表板集成 — Streamlit 财务仪表板
+
+### 阶段 3：战略分析与情报
+- [x] 军师智能体 — 战略分析与推荐
+- [x] Tavily 搜索集成 — 外部信号扫描
+- [x] 多源数据融合 — 情报合成
+- [x] 报告生成 — 情报简报输出
+
+### 阶段 4：生产就绪
+- [ ] 完整测试套件覆盖
+- [ ] 错误处理与恢复机制增强
+- [ ] 多用户支持
+- [ ] 任务优先级调度
+- [ ] 实时 WebSocket 通知
+
+---
+
+## 🌟 终极使命: 自动化普遍基本收入 (UBI)
+
+Maneki-AI 工厂的建立基于一个信念：AI 驱动的生产力应当服务于全人类。
+
+通过自动化复杂的业务生产，我们降低了创造经济价值的门槛。我们的终极目标是将过剩的生产力收益汇聚成一个可持续的生态系统，作为实现自动化 **普遍基本收入 (UBI)** 的技术原型。我们正在构建一个"工厂负责劳作，人类负责繁荣"的未来。

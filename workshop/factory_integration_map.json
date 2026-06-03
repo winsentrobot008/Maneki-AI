@@ -142,7 +142,30 @@
         "risk_assessment": "Agency-Agents.evaluate() → ECC safety orchestration",
         "resource_planning": "Agency-Agents.plan() → OpenClaw task queue prioritization"
       }
+    },
+
+    "clearing-engine": {
+      "path": "clearing_engine/",
+      "source": "clearing_engine/core.py",
+      "role": "Financial Clearing Engine — Success-Share Profit Split",
+      "domain": "💰 Business Model (Success-Share Factory)",
+      "responsibilities": [
+        "Automated task valuation based on business impact",
+        "Service fee calculation & deduction from net profits",
+        "Profit split between client and factory",
+        "Success metrics aggregation & reporting",
+        "Growth tracking & efficiency measurement"
+      ],
+      "depends_on": ["ecc"],
+      "consumed_by": ["ecc", "app.py"],
+      "integration_points": {
+        "ecc_settlement": "ECC → clearing_engine.settle_task() after task completion",
+        "dashboard": "app.py → clearing_engine.dashboard.render_success_share_dashboard()",
+        "cli_report": "commands.json → clearing_engine.core.FinancialClearingEngine.cli_report()",
+        "metrics_api": "clearing_engine.get_metrics_dict() → UI display"
+      }
     }
+
   },
 
   "dependency_graph": {
